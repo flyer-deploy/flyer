@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Common tasks for deploying apps to NGINX web server.
- *
+ * Common tasks for 'web.nginx' template.
  * */
 
-namespace Deployer;
+namespace TheRecipes\Flyer\Webserver;

@@ -1,11 +1,11 @@
 <?php
 
-namespace Deployer;
+namespace TheRecipes;
 
 function mandatory($value, $key)
 {
     if (empty($value)) {
-        throw new Exception\ConfigurationException("Please specify $key");
+        throw new \Deployer\Exception\ConfigurationException("Please specify $key");
     }
     return $value;
 }

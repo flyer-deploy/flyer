@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Common tasks for deploying apps to LiteSpeed web server.
- *
+ * Common tasks for 'web.litespeed' template.
  * */
 
-namespace Deployer;
+namespace TheRecipes\Flyer\Webserver;
