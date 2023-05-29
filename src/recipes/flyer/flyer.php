@@ -1,6 +1,6 @@
 <?php
 
-namespace Deployer;
+namespace TheRecipes\Flyer;
 
 require __DIR__ . '/../../../vendor/autoload.php';
 
