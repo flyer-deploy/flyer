@@ -3,5 +3,8 @@
     "psr-4": {
       "Deployer\\": "src/"
     }
+  },
+  "require": {
+    "yosymfony/toml": "^1.0"
   }
 }
