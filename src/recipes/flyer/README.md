@@ -15,7 +15,7 @@ Flyer will check these files in the artifact directory in order:
 
 The config schema:
 
-- `template`
+- `template.name`
 
   Select deployment template.
 
