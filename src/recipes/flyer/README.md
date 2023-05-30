@@ -20,13 +20,13 @@ The config schema:
 
   **Supported values**: 'web.litespeed', 'web.nginx', 'general_process.supervisord', 'general_process.systemd'
 
-  Default: null
+  **Default**: null
 
 - `template.params.<param>`
 
   Template may need to be provided parameters.
 
-  Default: null
+  **Default**: null
 
 - `command_hooks.pre_deploy`
 
