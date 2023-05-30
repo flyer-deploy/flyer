@@ -1,6 +1,6 @@
 # Flyer Deployer recipe
 
-Dead-simple, bare-minimum Deployer recipe. It will accept a zipped artifact file and deploy it to the destined directories.
+Dead-simple, bare-minimum Deployer recipe. It will accept a zipped artifact file and deploy it to destination directories.
 
 ## Why very bare-minimum?
 
@@ -11,7 +11,6 @@ To allow great flexibility. Each application can specify their command hooks to 
 Flyer will check these files in the artifact directory in order:
 
 1. flyer.toml
-2. flyer.php
 
 The config schema:
 
@@ -21,13 +20,13 @@ The config schema:
 
   **Supported values**: 'web.litespeed', 'web.nginx', 'general_process.supervisord', 'general_process.systemd'
 
-  Default: null
+  **Default**: null
 
 - `template.params.<param>`
 
   Template may need to be provided parameters.
 
-  Default: null
+  **Default**: null
 
 - `command_hooks.pre_deploy`
 
@@ -93,7 +92,7 @@ Flyer supports command hooks to run commands at various steps in the pipeline. C
 
 Templates are just predefined command hooks. For example, if you use 'web.litespeed', all of the command hooks are automatically populated with the commands required to deploy web application behind a LiteSpeed webserver. You can omit one or more predefined command hooks by specifying the hook with `null`.
 
-For example, this will populate command hooks for 'web.litespeed' except the `postDeploy`.
+For example, this will populate command hooks for 'web.litespeed' except the `post_deploy`.
 
 ```toml
 [template]
