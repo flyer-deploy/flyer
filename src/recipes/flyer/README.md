@@ -29,31 +29,31 @@ The config schema:
 
   Default: null
 
-- `commandHooks.preDeploy`
+- `command_hooks.pre_deploy`
 
   Run shell command provided here before deployment.
 
   **Default**: null
 
-- `commandHooks.postDeploy`
+- `command_hooks.post_deploy`
 
   Run shell command provided here after deployment.
 
   **Default**: null
 
-- `commandHooks.preSymlink`
+- `command_hooks.pre_symlink`
 
   Run shell command provided here before symlink-ing current release to the `{{current_directory}}`.
 
   **Default**: null
 
-- `commandHooks.postSymlink`
+- `command_hooks.post_symlink`
 
   Run shell command provided here after symlink-ing current release to the `{{current_directory}}`.
 
   **Default**: null
 
-- `commandHooks.start`
+- `command_hooks.start`
 
   Run shell command provided here to start the application.
 
@@ -88,6 +88,20 @@ The process spawned by the commands will have following environment variables:
 ## Command hooks
 
 Flyer supports command hooks to run commands at various steps in the pipeline. Currently it only supports shell command. The process spawned by the commands will have all environment variables specified in [Environment variables section](#environment-variables).
+
+## Templates
+
+Templates are just predefined command hooks. For example, if you use 'web.litespeed', all of the command hooks are automatically populated with the commands required to deploy web application behind a LiteSpeed webserver. You can omit one or more predefined command hooks by specifying the hook with `null`.
+
+For example, this will populate command hooks for 'web.litespeed' except the `postDeploy`.
+
+```toml
+[template]
+name = 'web.litespeed'
+
+[command_hooks]
+post_deploy = null
+```
 
 ## Architecture
 
