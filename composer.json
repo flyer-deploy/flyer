@@ -1,10 +1,10 @@
 {
-  "autoload": {
-    "psr-4": {
-      "Deployer\\": "src/"
+    "autoload": {
+        "psr-4": {
+          "Flyer\\": "src/"
+        }
+      },
+    "require": {
+        "yosymfony/toml": "^1.0"
     }
-  },
-  "require": {
-    "yosymfony/toml": "^1.0"
-  }
 }
