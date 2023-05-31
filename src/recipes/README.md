@@ -14,13 +14,43 @@ Flyer will check these files in the artifact directory in order:
 
 The config schema:
 
+**Default**: null
+
+- `permission.user`
+
+  User owner of the files and directories. If empty Flyer will keep the user unchanged.
+
+  **Default**: null
+
+- `permission.group`
+
+  Group of the files and directories. If empty Flyer will keep the group unchanged.
+
+  **Default**: null
+
+- `permission.acl_list`
+
+  List of ACL (Access Control List) definitions for directories. If empty Flyer will keep the ACL unchanged.
+
+  **Default**: null
+
+- `permission.default_permission`
+
+  An array containing list of files or directories that need to be writable.
+
+  **Default**: null
+
+- `permission.writable_paths`
+
+  An array containing list of files or directories that need to be writable
+
+  **Default**: null
+
 - `template.name`
 
   Select deployment template.
 
-  **Supported values**: 'web.litespeed', 'web.nginx', 'general_process.supervisord', 'general_process.systemd'
-
-  **Default**: null
+  **Supported values**: 'web.litespeed', 'web.nginx', 'general_process.supervisord', 'general_process.systemd'A
 
 - `template.params.<param>`
 
@@ -83,6 +113,8 @@ The process spawned by the commands will have following environment variables:
 - `CURRENT_RELEASE_DIRECTORY`
 
   The `{{deploy_path}}`/release.<current_sequence_number> directory.
+
+## Permissions
 
 ## Command hooks
 
