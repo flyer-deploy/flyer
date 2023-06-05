@@ -39,7 +39,7 @@ task('deploy:create_release', function () {
 });
 
 task('deploy:load_config', function () {
-    $file = get('new_release_path') . '/artifact/flyer.toml';
+    $file = get('new_release_path') . '/flyer.toml';
 
     if (file_exists($file)) {
         $config = Toml::ParseFile($file);
