@@ -10,10 +10,11 @@ appname=""
 
 display_usage() {
     echo "Usage: $0 [-p <directory>] [-z <filename>]"
+    echo
     echo "Options:"
     echo "-p : Directory to create Laravel project"
     echo "-z : Zip filename"
-
+    echo
     cat <<EOL
 Example usage:
 ./artifact_creator.sh -p ./examples/larapel -z ./examples/larapel.zip
