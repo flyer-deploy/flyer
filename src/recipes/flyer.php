@@ -2,6 +2,7 @@
 
 namespace Deployer;
 
+use Deployer\Exception\ConfigurationException;
 use Yosymfony\Toml\Toml;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -39,6 +40,12 @@ task('deploy:release', function () {
             $new_release = "/release.$current_date.$sequence";
         }
     }
+
+    $deploy_path = get('deploy_path');
+    if (file_exists($deploy_path) && !is_dir($deploy_path)) {
+        throw new ConfigurationException("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
+    }
+    run("mkdir -p {{deploy_path}}");
 
     // Unzip artifact
     writeln("Extracting artifact {{artifact_file}} to release {{deploy_path}}" . $new_release);
