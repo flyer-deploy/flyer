@@ -8,6 +8,32 @@ use Yosymfony\Toml\Toml;
 
 localhost();
 
+// Command Hooks
+task('deploy:post_release', function () {
+    if (isset($config['command_hooks']['post_release'])) {
+        run($config['command_hooks']['post_release']);
+    }
+});
+
+task('deploy:pre_symlink', function () {
+    if (isset($config['command_hooks']['pre_symlink'])) {
+        run($config['command_hooks']['pre_symlink']);
+    }
+});
+
+task('deploy:post_symlink', function () {
+    if (isset($config['command_hooks']['post_symlink'])) {
+        run($config['command_hooks']['post_symlink']);
+    }
+});
+
+task('deploy:start', function () {
+    if (isset($config['command_hooks']['start'])) {
+        run($config['command_hooks']['start']);
+    }
+});
+
+// Common Recipe
 task('deploy:create_release', function () {
     $release_list = get('release_list');
     $current_date = date('Ymd');
@@ -55,18 +81,6 @@ task('deploy:symlink', function () {
     run("ln -sfn {{new_release_path}} {{current_path}}");
 });
 
-task('cleanup', function () {
-    $release_list = get('release_list');
-    $new_release_path = get('new_release_path');
-
-    $delete_queue = array_filter($release_list, fn ($release) => $release !== $new_release_path);
-
-    foreach ($delete_queue as $release) {
-        run("rm -rf {{deploy_path}}/$release");
-    }
-});
-
-
 task('deploy', function () {
     set('artifact_file', getenv('ARTIFACT_FILE'));
     set('deploy_path', getenv('DEPLOY_PATH'));
@@ -95,26 +109,13 @@ task('deploy', function () {
     invoke('cleanup');
 });
 
-task('deploy:post_release', function () {
-    if (isset($config['command_hooks']['post_release'])) {
-        run($config['command_hooks']['post_release']);
-    }
-});
+task('cleanup', function () {
+    $release_list = get('release_list');
+    $new_release_path = get('new_release_path');
 
-task('deploy:pre_symlink', function () {
-    if (isset($config['command_hooks']['pre_symlink'])) {
-        run($config['command_hooks']['pre_symlink']);
-    }
-});
+    $delete_queue = array_filter($release_list, fn ($release) => $release !== $new_release_path);
 
-task('deploy:post_symlink', function () {
-    if (isset($config['command_hooks']['post_symlink'])) {
-        run($config['command_hooks']['post_symlink']);
-    }
-});
-
-task('deploy:start', function () {
-    if (isset($config['command_hooks']['start'])) {
-        run($config['command_hooks']['start']);
+    foreach ($delete_queue as $release) {
+        run("rm -rf {{deploy_path}}/$release");
     }
 });
