@@ -6,14 +6,14 @@ task('deploy:post_release', function() {
     echo "something";
 });
 
-task('web:nginx:pre_symlink', function() {
+task('web:nginx:pre_symlink', function () {
     echo "something";
 });
 
-task('web:nginx:post_symlink', function() {
+task('web:nginx:post_symlink', function () {
     echo "something";
 });
 
-task('web:nginx:start', function() {
+task('web:nginx:start', function () {
     echo "starting";
 });

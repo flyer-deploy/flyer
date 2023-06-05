@@ -24,6 +24,12 @@ task('deploy:create_release', function () {
         }
     }
 
+    $deploy_path = get('deploy_path');
+    if (file_exists($deploy_path) && !is_dir($deploy_path)) {
+        throw new ConfigurationException("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
+    }
+    run("mkdir -p {{deploy_path}}");
+
     // Unzip artifact
     writeln("Extracting artifact {{artifact_file}} to release {{deploy_path}}" . $new_release);
     run("unzip -qq {{artifact_file}} -d {{deploy_path}}" . $new_release);

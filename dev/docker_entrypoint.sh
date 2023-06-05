@@ -34,4 +34,4 @@ if [ -z "$artifact_file" ] || [ -z "$deploy_path" ]; then
 fi
 
 # run the
-DEPLOY_PATH=$deploy_path ARTIFACT_FILE=$artifact_file dep -f src/recipes/flyer.php deploy
+DEPLOY_PATH=$(readlink -f $deploy_path) ARTIFACT_FILE=$(readlink -f $artifact_file) dep -f src/recipes/flyer.php deploy
