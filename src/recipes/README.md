@@ -64,7 +64,7 @@ The config schema:
 
   **Default**: null
 
-- `command_hooks.post_deploy`
+- `command_hooks.post_release`
 
   Run shell command provided here after deployment.
 
@@ -124,14 +124,14 @@ Flyer supports command hooks to run commands at various steps in the pipeline. C
 
 Templates are just predefined command hooks. For example, if you use 'web.litespeed', all of the command hooks are automatically populated with the commands required to deploy web application behind a LiteSpeed webserver. You can omit one or more predefined command hooks by specifying the hook with `null`.
 
-For example, this will populate command hooks for 'web.litespeed' except the `post_deploy`.
+For example, this will populate command hooks for 'web.litespeed' except the `post_release`.
 
 ```toml
 [template]
 name = 'web.litespeed'
 
 [command_hooks]
-post_deploy = null
+post_release = null
 ```
 
 ## Architecture

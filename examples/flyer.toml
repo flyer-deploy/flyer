@@ -1,9 +1,3 @@
-[template]
-name = "web.nginx"
-
-[template.parameters]
-app_type = "laravel"
-
 [permission]
 user = "www-data"
 group = "www-data"
