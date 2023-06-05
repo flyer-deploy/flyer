@@ -14,18 +14,5 @@ function mandatory($value, $key)
 
 function mkdir_if_not_exists(string $dir)
 {
-    \Deployer\run("test -d $dir || mkdir $dir");
-}
-
-function get_config(string $dir)
-{
-    $files  = glob($dir . '/flyer.toml');
-    $config = null;
-
-    if (empty($files)) {
-        echo "Configuration file not found.";
-    } else {
-        $config = Toml::ParseFile($files[0]);
-    }
-    return $config;
+    run("test -d $dir || mkdir $dir");
 }
