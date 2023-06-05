@@ -11,6 +11,11 @@ display_usage() {
     echo "Options:"
     echo "-p : Directory to create Laravel project"
     echo "-z : Zip filename"
+
+    cat <<EOL
+Example usage:
+./artifact_creator.sh -p ./examples/larapel -z ./examples/larapel.zip
+EOL
 }
 
 while getopts ":p:z:" opt; do
