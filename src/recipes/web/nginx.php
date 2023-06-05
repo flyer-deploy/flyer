@@ -2,7 +2,7 @@
 
 namespace Deployer;
 
-task('web:nginx:post_release', function() {
+task('deploy:post_release', function() {
     echo "something";
 });
 

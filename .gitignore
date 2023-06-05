@@ -1,7 +1,6 @@
 vendor
 .test
 test*
-.sealed*
 examples/*
 !examples/.gitkeep
 !examples/artifact_creator.sh
