@@ -1,5 +1,11 @@
 #!/bin/bash
 
+set -e
+
+if [ $DEBUG = 1 ]; then
+    set -x
+fi
+
 script_dir=$(dirname "$0")
 
 # currently only supports Laravel
@@ -46,8 +52,9 @@ fi
 
 composer create-project laravel/laravel "$directory"
 cp $script_dir/flyer.toml $directory
-cd "$directory" || exit
 
-zip -0 -r "$filename" .
+filename=$(readlink -f $filename)
+cd "$directory" || exit
+zip -0 -r $filename .
 
 echo "Laravel project created and zipped successfully!"
