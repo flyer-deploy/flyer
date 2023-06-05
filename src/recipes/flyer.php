@@ -70,11 +70,24 @@ task('deploy:load_config', function () {
     if (file_exists($file)) {
         $config = Toml::ParseFile($file);
     } else {
-        echo "Configuration file not found.";
+        writeln("Configuration file not found.");
         $config = [];
     }
 
     set('config', $config);
+});
+
+task('deploy:set_permission', function() {
+    if (!isset(get('config')['permission'])) {
+        return;
+    }
+
+    $permission = get('config')['permission'];
+    $user = $permission['user'];
+    $group = $permission['group'];
+
+    writeln("Assigning user and group to folder {{new_release_path}}");
+    run("sudo chown -R $user:$group {{new_release_path}}");
 });
 
 task('deploy:symlink', function () {
@@ -89,6 +102,7 @@ task('deploy', function () {
 
     invoke('deploy:create_release');
     invoke('deploy:load_config');
+    invoke('deploy:set_permission');
 
     $config = get('config');
 
