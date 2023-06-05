@@ -5,14 +5,14 @@ name = "web.nginx"
 app_type = "laravel"
 
 [permission]
-user = "user"
-group = "group"
+user = "www-data"
+group = "www-data"
 acl_list = []
 default_permission = []
 writable_paths = []
 
 [command_hook]
 post_deploy = "echo post_deploy"
-pre_symlink = "bash pre_symlink"
-post_symlink = "bash post_symlink"
-start = "bash start"
+pre_symlink = "echo pre_symlink"
+post_symlink = "echo post_symlink"
+start = "echo start"
