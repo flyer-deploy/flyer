@@ -1,5 +1,7 @@
 #!/bin/bash
 
+script_dir=$(dirname "$0")
+
 # currently only supports Laravel
 
 directory=""
@@ -42,6 +44,7 @@ if [ -z "$composer_installed" ]; then
 fi
 
 composer create-project laravel/laravel "$directory"
+cp $script_dir/flyer.toml $directory
 cd "$directory" || exit
 
 zip -0 -r "$filename" .

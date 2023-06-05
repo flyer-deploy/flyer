@@ -1,0 +1,18 @@
+[template]
+name = "web.nginx"
+
+[template.parameters]
+app_type = "laravel"
+
+[permission]
+user = "user"
+group = "group"
+acl_list = []
+default_permission = []
+writable_paths = []
+
+[command_hook]
+post_deploy = "echo Default post_deploy"
+pre_symlink = "bash Default pre_symlink"
+post_symlink = "bash Default post_symlink"
+start = "bash Default start"
