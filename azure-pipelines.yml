@@ -18,13 +18,17 @@ steps:
     archiveFile: '$(System.DefaultWorkingDirectory)/artifact.zip'
     replaceExistingArchive: true
 
-# - task: AzureFileCopy@5
-#   inputs:
-#     SourcePath: '$(System.DefaultWorkingDirectory)/artifact.zip'
-#     azureSubscription: 'sp-deployer-recipes'
-#     Destination: 'AzureBlob'
-#     storage: 'stginternalfilesbotika'
-#     ContainerName: 'devops-deployer-recipes'
-#     BlobPrefix: 'artifact.zip'
-  
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'sp-deployer-recipes'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az storage blob upload \
+          --container devops-deployer-recipes \
+          -n artifact.zip \
+          -f $(System.DefaultWorkingDirectory)/artifact.zip \
+          --overwrite \
+          --account-key $(STG_INTERNAL_FILES_ACC_KEY) \
+          --account-name $(STG_INTERNAL_FILES_ACC_NAME)
 
