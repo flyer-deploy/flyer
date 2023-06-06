@@ -3,6 +3,7 @@
 namespace Deployer;
 
 require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '/../common/utils.php';
 
 use Yosymfony\Toml\Toml;
 
@@ -131,7 +132,7 @@ task('deploy:set_writeable_path', function () {
 
         $recursive = '';
         if (isset($writeable_path['recursive'])) {
-            if ($writeable_path['recursive'] === true){
+            if ($writeable_path['recursive'] === true) {
                 $recursive = '-R';
             }
         }
@@ -145,16 +146,35 @@ task('deploy:symlink', function () {
     run("ln -sfn {{new_release_path}} {{current_path}}");
 });
 
+task('deploy:shared_dir', function () {
+    if (!get('shared_dir')) {
+        return;
+    }
+
+    $project_name = get('project_name');
+    $repo_name = get('repo_name');
+
+    mkdir_if_not_exists("/var/share/$project_name/$repo_name");
+
+    writeln("Moving shared dir content.");
+    run("mv -f {{shared_dir}} /var/share/$project_name/$repo_name");
+
+    writeln("Creating shared dir symlink.");
+    run("ln -sfn /var/share/$project_name/$repo_name {{shared_dir}}");
+});
+
 task('deploy', function () {
+    set('project_name', getenv('PROJECT_NAME'));
+    set('repo_name', getenv('REPO_NAME'));
+    set('shared_dir', getenv('SHARED_DIR'));
     set('artifact_file', getenv('ARTIFACT_FILE'));
     set('deploy_path', getenv('DEPLOY_PATH'));
+
     set('current_path', '{{deploy_path}}/current');
     set('release_list', array_map('basename', glob(get('deploy_path') . '/release.*')));
 
     invoke('deploy:create_release');
     invoke('deploy:load_config');
-    invoke('deploy:set_permission');
-    invoke('deploy:set_writeable_path');
 
     $config = get('config');
 
@@ -167,7 +187,10 @@ task('deploy', function () {
         }
     }
 
+    invoke('deploy:set_permission');
+    invoke('deploy:set_writeable_path');
     invoke('deploy:post_release');
+
     invoke('deploy:pre_symlink');
     invoke('deploy:symlink');
     invoke('deploy:post_symlink');
