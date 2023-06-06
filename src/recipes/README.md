@@ -36,8 +36,6 @@ The config schema:
 
 - `permission.default_permission`
 
-  An array containing list of files or directories that need to be writable.
-
   **Default**: null
 
 - `permission.writable_paths`
@@ -45,6 +43,28 @@ The config schema:
   An array containing list of files or directories that need to be writable
 
   **Default**: null
+
+  Example:
+
+  ```toml
+  [permission]
+  writable_paths = [
+    { path = "storage/logs", by = "group", recursive = true },
+    { path = "storage/uploads", by = "user", recursive = false },
+    { path = "storage/some_random_file", by = "user" },
+  ]
+  ```
+
+  This will:
+
+  - Set storage/logs directory to be writable by group of the directories and/or files recursively, and
+  - Set storage/uploads directory to be writable by user. It only applies to the storage/uploads directory since it's not recursive.
+  - Set storage/some_random_file file to be writable by user. If `recursive` is specified, it will be ignored since it's a file.
+
+  Some defaults:
+
+  - `by` defaults to "user"
+  - `recursive` defaults to `false`
 
 - `template.name`
 
