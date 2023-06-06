@@ -114,6 +114,20 @@ The config schema:
 
   **Default**: null
 
+- `shared_dirs`
+
+  List of directories to be linked to shared dir.
+
+  **Default**: null
+
+  Example:
+
+  ```yaml
+  shared_dirs:
+    - storage
+    - var
+  ```
+
 ## Environment variables
 
 ### User-provided variables
