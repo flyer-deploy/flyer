@@ -1,0 +1,34 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  name: Default
+
+steps:
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.BinariesDirectory)'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(System.DefaultWorkingDirectory)/artifact.zip'
+    replaceExistingArchive: true
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'sp-deployer-recipes'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az storage blob upload \
+          --container devops-deployer-recipes \
+          -n artifact.zip \
+          -f $(System.DefaultWorkingDirectory)/artifact.zip \
+          --overwrite \
+          --account-key $(STG_INTERNAL_FILES_ACC_KEY) \
+          --account-name $(STG_INTERNAL_FILES_ACC_NAME)
+
