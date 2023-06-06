@@ -7,5 +7,4 @@ task('deploy:post_release', function() {
 });
 
 task('deploy:post_symlink', function() {
-    run
 });

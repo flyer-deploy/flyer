@@ -101,7 +101,7 @@ task('deploy:set_permission', function () {
     $group = $permission['group'];
 
     writeln("Assigning user and group to folder {{new_release_path}}");
-    run("sudo chown -R $user:$group {{new_release_path}}");
+    run("chown -R $user:$group {{new_release_path}}");
 });
 
 task('deploy:symlink', function () {
