@@ -192,6 +192,7 @@ task('deploy', function () {
     invoke('deploy:post_release');
 
     invoke('deploy:pre_symlink');
+    invoke('deploy:shared_dir');
     invoke('deploy:symlink');
     invoke('deploy:post_symlink');
 
