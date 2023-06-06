@@ -37,7 +37,7 @@ task('deploy:start', function () {
 task('deploy:create_release', function () {
     $release_list = get('release_list');
     $current_date = date('Ymd');
-    $new_release  = "/release.$current_date.1";
+    $new_release  = "release.$current_date.1";
 
     // Preparation to sort release
     $sorted_release = [];
@@ -60,7 +60,7 @@ task('deploy:create_release', function () {
         $last_sequence = key($sorted_release);
         $sequence = $last_sequence + 1;
 
-        $new_release = "/release.$current_date.$sequence";
+        $new_release = "release.$current_date.$sequence";
     }
 
     // Check if deploy path is a directory
@@ -71,18 +71,19 @@ task('deploy:create_release', function () {
     run("mkdir -p {{deploy_path}}");
 
     // Unzip artifact
-    writeln("Extracting artifact {{artifact_file}} to release {{deploy_path}}" . $new_release);
-    run("unzip -qq {{artifact_file}} -d {{deploy_path}}" . $new_release);
+    writeln("Extracting artifact {{artifact_file}} to release {{deploy_path}}/" . $new_release);
+    run("unzip -qq {{artifact_file}} -d {{deploy_path}}/" . $new_release);
 
     set('new_release', $new_release);
     set('new_release_path', '{{deploy_path}}/{{new_release}}');
 });
 
 task('deploy:load_config', function () {
-    $file = get('new_release_path') . '/flyer.toml';
+    echo get('new_release_path');
+    $file = get('new_release_path') . '/flyer.yaml';
 
     if (file_exists($file)) {
-        $config = Toml::ParseFile($file);
+        $config = yaml_parse_file($file);
     } else {
         writeln("Configuration file not found.");
         $config = [];
@@ -92,7 +93,7 @@ task('deploy:load_config', function () {
 });
 
 task('deploy:set_permission', function () {
-    if (!isset(get('config')['permission'])) {
+    if (!isset(get('config')['permission']['user']) || isset(get('config')['permission']['group'])) {
         return;
     }
 
@@ -102,6 +103,42 @@ task('deploy:set_permission', function () {
 
     writeln("Assigning user and group to folder {{new_release_path}}");
     run("chown -R $user:$group {{new_release_path}}");
+});
+
+task('deploy:set_writeable_path', function () {
+    if (isset(get('config')['permission']['writeable_paths'])) {
+        $writeable_paths = get('config')['permission']['writeable_paths'];
+
+    } elseif (isset(get('config')['permission']['writable_paths'])) {
+        $writeable_paths = get('config')['permission']['writable_paths'];
+
+    } else {
+        return;
+    }
+
+    foreach ($writeable_paths as $writeable_path) {
+        $path = get('new_release_path') . '/' .$writeable_path['path'];
+
+        $class = '';
+        switch ($writeable_path['by']) {
+            case 'user':
+                $class = 'u';
+                break;
+            case 'group':
+                $class = 'g';
+                break;
+        }
+
+        $recursive = '';
+        if (isset($writeable_path['recursive'])) {
+            if ($writeable_path['recursive'] === true){
+                $recursive = '-R';
+            }
+        }
+
+        writeln("Creating writeable path $path by $class");
+        run("chmod $recursive $class+w $path");
+    }
 });
 
 task('deploy:symlink', function () {
@@ -117,6 +154,7 @@ task('deploy', function () {
     invoke('deploy:create_release');
     invoke('deploy:load_config');
     invoke('deploy:set_permission');
+    invoke('deploy:set_writeable_path');
 
     $config = get('config');
 
