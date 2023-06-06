@@ -50,15 +50,15 @@ The config schema:
 
   ```yaml
   permission:
-  writable_paths:
-    - path: storage/logs
-      by: group
-      recursive: true
-    - path: storage/uploads
-      by: user
-      recursive: false
-    - path: storage/some_random_file
-      by: user
+    writable_paths:
+      - path: storage/logs
+        by: group
+        recursive: true
+      - path: storage/uploads
+        by: user
+        recursive: false
+      - path: storage/some_random_file
+        by: user
   ```
 
   This will:
