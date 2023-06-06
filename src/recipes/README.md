@@ -116,7 +116,7 @@ The config schema:
 
 - `shared_dirs`
 
-  List of directories to be linked to shared dirs.
+  List of directories to be linked to shared dir.
 
   **Default**: null
 
