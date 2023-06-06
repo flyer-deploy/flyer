@@ -10,12 +10,21 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.BinariesDirectory)'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(System.DefaultWorkingDirectory)/artifact.zip'
+    replaceExistingArchive: true
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: AzureFileCopy@5
+  inputs:
+    SourcePath: '$(System.DefaultWorkingDirectory)/artifact.zip'
+    azureSubscription: 'sp-deployer-recipes'
+    Destination: 'AzureBlob'
+    storage: 'stginternalfilesbotika'
+    ContainerName: 'devops-deployer-recipes'
+    BlobPrefix: 'artifact.zip'
   
 
