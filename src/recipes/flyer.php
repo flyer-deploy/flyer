@@ -39,17 +39,31 @@ task('deploy:create_release', function () {
     $current_date = date('Ymd');
     $new_release  = "/release.$current_date.1";
 
+    // Preparation to sort release
+    $sorted_release = [];
     foreach ($release_list as $release) {
         $arr      = explode(".", $release);
         $date     = $arr[1];
         $sequence = $arr[2];
 
         if ($current_date == $date) {
-            $sequence++;
-            $new_release = "/release.$current_date.$sequence";
+            $sorted_release[$sequence] = $release;
         }
     }
 
+    // Sort the release
+    ksort($sorted_release);
+    end($sorted_release);
+
+    // Get latest release sequence
+    if (!empty($sorted_release)) {
+        $last_sequence = key($sorted_release);
+        $sequence = $last_sequence + 1;
+
+        $new_release = "/release.$current_date.$sequence";
+    }
+
+    // Check if deploy path is a directory
     $deploy_path = get('deploy_path');
     if (file_exists($deploy_path) && !is_dir($deploy_path)) {
         throw new ConfigurationException("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
@@ -77,7 +91,7 @@ task('deploy:load_config', function () {
     set('config', $config);
 });
 
-task('deploy:set_permission', function() {
+task('deploy:set_permission', function () {
     if (!isset(get('config')['permission'])) {
         return;
     }
@@ -125,9 +139,9 @@ task('deploy', function () {
 
 task('cleanup', function () {
     $release_list = get('release_list');
-    $new_release_path = get('new_release_path');
+    $new_release = get('new_release');
 
-    $delete_queue = array_filter($release_list, fn ($release) => $release !== $new_release_path);
+    $delete_queue = array_filter($release_list, fn ($release) => $release !== $new_release);
 
     foreach ($delete_queue as $release) {
         run("rm -rf {{deploy_path}}/$release");
