@@ -10,7 +10,7 @@ To allow great flexibility. Each application can specify their command hooks to 
 
 Flyer will check these files in the artifact directory in order:
 
-1. flyer.toml
+1. flyer.yaml
 
 The config schema:
 
@@ -28,37 +28,43 @@ The config schema:
 
   **Default**: null
 
-- `permission.acl_list`
+- `permission.acl`
 
-  List of ACL (Access Control List) definitions for directories. If empty Flyer will keep the ACL unchanged.
+  ACL (Access Control List) definitions for directories. If empty Flyer will keep the ACL unchanged.
 
   **Default**: null
 
 - `permission.default_permission`
 
+  Default permission specified using octal values (e.g. 644, 744). This will set all directories and files to the provided permission value before applying the `permission.writable_paths` option. If empty Flyer will keep the default permission unchanged.
+
   **Default**: null
 
 - `permission.writable_paths`
 
-  An array containing list of files or directories that need to be writable
+  An array containing list of files or directories that need to be writable.
 
   **Default**: null
 
   Example:
 
-  ```toml
-  [permission]
-  writable_paths = [
-    { path = "storage/logs", by = "group", recursive = true },
-    { path = "storage/uploads", by = "user", recursive = false },
-    { path = "storage/some_random_file", by = "user" },
-  ]
+  ```yaml
+  permission:
+  writable_paths:
+    - path: storage/logs
+      by: group
+      recursive: true
+    - path: storage/uploads
+      by: user
+      recursive: false
+    - path: storage/some_random_file
+      by: user
   ```
 
   This will:
 
-  - Set storage/logs directory to be writable by group of the directories and/or files recursively, and
-  - Set storage/uploads directory to be writable by user. It only applies to the storage/uploads directory since it's not recursive.
+  - Set storage/logs directory to be writable by group of the directories and/or files recursively,
+  - Set storage/uploads directory to be writable by user. It only applies to the storage/uploads directory since it's not recursive, and
   - Set storage/some_random_file file to be writable by user. If `recursive` is specified, it will be ignored since it's a file.
 
   Some defaults:
@@ -146,12 +152,12 @@ Templates are just predefined command hooks. For example, if you use 'web.litesp
 
 For example, this will populate command hooks for 'web.litespeed' except the `post_release`.
 
-```toml
-[template]
-name = 'web.litespeed'
+```yaml
+template:
+  name: web.litespeed
 
-[command_hooks]
-post_release = null
+command_hook:
+  post_release: null
 ```
 
 ## Architecture

@@ -5,3 +5,4 @@ examples/*
 !examples/.gitkeep
 !examples/artifact_creator.sh
 !examples/flyer.toml
+!examples/flyer.yaml

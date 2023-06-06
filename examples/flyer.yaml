@@ -1,0 +1,24 @@
+permission:
+  user: www-data
+  group: www-data
+  acl_list:
+  default_permission:
+  writable_paths:
+    - path: storage/logs
+      by: group
+      recursive: true
+    - path: storage/uploads
+      by: user
+      recursive: false
+    - path: storage/some_random_file
+      by: user
+
+command_hook:
+  post_deploy: |
+    echo post deploy
+  pre_symlink: |
+    echo pre symlink
+  post_symlink: |
+    echo post symlink
+  start: |
+    echo start

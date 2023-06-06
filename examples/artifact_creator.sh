@@ -51,7 +51,7 @@ if [ -z "$composer_installed" ]; then
 fi
 
 composer create-project laravel/laravel "$directory"
-cp $script_dir/flyer.toml $directory
+cp $script_dir/flyer.yaml $directory
 
 filename=$(readlink -f $filename)
 cd "$directory" || exit

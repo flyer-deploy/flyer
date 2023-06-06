@@ -1,6 +1,6 @@
 [permission]
-user = "www-data"
-group = "www-data"
+# user = "www-data"
+# group = "www-data"
 acl_list = []
 default_permission = []
 writable_paths = []

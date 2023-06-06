@@ -13,6 +13,12 @@ Currently it only supports artifact archived with zip format. Otherwise throw er
 7. Run `post_symlink` command hooks.
 8. Delete previous releases if exist.
 
+## Permissions
+
+### ACL
+
+Use `setfacl` to set directories ACL.
+
 ## Low-level commands
 
 There are [great open-source command line tools alternatives to common unix commands available](https://github.com/ibraheemdev/modern-unix). Many of them are much faster than the built-in commands. If the alternative commands exist, use them.
