@@ -47,13 +47,19 @@ This section describes how Flyer handles shared files and directories. This algo
 
 6. Remove the directory in the release. In the example above the assets/uploads/json dir will be removed.
 
-7. Create path to the shared dir in release dir if it does not exist since symlink will not create the full path. E.g if the path is assets/uploads/json, then create the assets/uploads directory.
+7. Create path to the shared dir in release dir if it does not exist since symlink will not create the full path. E.g. if the path is assets/uploads/json, then create the assets/uploads directory.
 
-8. Create symlink from to the shared dir.
+8. Create symlink from the release dir to the shared dir.
 
-9. Copy all files specified in `shared.files` to the shared dir path.
+9. Copy all files specified in `shared.files` to the shared dir path. Directory tree structure must be preserved. If the files do not actually exist in the release, touch the file in the shared dir. Yes, it is possible that the file is not available at the release time but later needed when the application is running.
 
-### Error handling
+10. Remove file from release.
+
+11. Ensure dir needs to be available in release. E.g. if the file is assets/uploads/json/users.json, the directory assets/uploads/json needs to exist in release.
+
+12. Create symlink from the release file to the file in shared dir.
+
+### Err handling, edge cases, and stuffs that might happen kaboom-ly
 
 - If the dir is already shared, but then developer specifies a shared file inside the same directory, what would happen?
 
@@ -66,6 +72,20 @@ This section describes how Flyer handles shared files and directories. This algo
     files:
       - assets/uploads/json/users.json
   ```
+
+  Horrendous. Might lead to unexpected kaboom if not handled correctly.
+
+  Following is just a theoretical of what would happen:
+
+  1. Flyer will copy {{release_path}}/assets/uploads/json to {{shared_dir}}/{{project_id}}/assets/uploads/
+  2. Removes {{release_path}}/assets/uploads/json in release dir
+  3. Create symlink from {{release_path}}/assets/uploads/json to {{shared_dir}}/{{project_id}}/assets/uploads/json
+  4. For the files, flyer will copy (notice carefully this part) the {{release_path}}/assets/uploads/json/users.json to {{shared_dir}}/{{project_id}}/assets/uploads/json. Unfortunately, {{release_path}}/assets/uploads/json/ is already symlinked to the shared dir. Meaning we are copying files in the symlinked directory to the shared dir, which actually copies nothing.
+  5. Flyer will REMOVE (notice carefully this part) {{release_path}}/assets/uploads/json/users.json. Unfortunately, {{release_path}}/assets/uploads/json/ is already symlinked to the shared dir. Meaning we are removing files in the symlinked directory, which actually removes the files in the shared dir itself.
+
+  Solution:
+
+  - Validate. Just make sure that this is not possible. Prevent devs from specifying files that is inside the directories that are shared. In this case, shared dirs are enough since, well, it shares the whole directory, without specifying individual files.
 
 ## Additional files
 
