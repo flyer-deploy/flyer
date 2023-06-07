@@ -2,9 +2,10 @@
 
 namespace Deployer;
 
-task('deploy:post_release', function() {
+task('deploy:release:after', function() {
     echo "do something \n";
 });
 
-task('deploy:post_symlink', function() {
+task('deploy:symlink:after', function() {
+    echo "nginx symlink \n";
 });
