@@ -41,7 +41,7 @@ This section describes how Flyer handles shared files and directories. This algo
 
 3. Flyer will see environment variable `SHARED_ROOT_DIR`, is a dir to put the shared dirs and files.
 
-4. Flyer will see environment variable `APP_ID`, is a string to uniquely identify an application. Flyer will store the shared dirs and files under the directory `$SHARED_ROOT_DIR`/`$PROJECT_ID`.
+4. Flyer will see environment variable `APP_ID`, is a string to uniquely identify an application. Flyer will store the shared dirs and files under the directory `$SHARED_ROOT_DIR`/`$APP_ID`.
 
 5. Copy all directories specified in `shared.dirs` to the shared dir path. Directory tree structure must be preserved. E.g. if the directory name is assets/uploads/json, then create the full path to the shared dir path, which will be `$SHARED_ROOT_DIR`/`$PROJECT_DIR`/assets/uploads/json.
 
