@@ -159,7 +159,7 @@ task('deploy:shared_dir', function () {
 
         writeln("Moving shared dir content.");
         run("mv -f {{new_release_path}}/$dir /var/share/$project_name/$repo_name/$dir");
-    
+
         writeln("Creating shared dir symlink.");
         run("ln -sfn /var/share/$project_name/$repo_name/$dir {{new_release_path}}/$dir");
     }

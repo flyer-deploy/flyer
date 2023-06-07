@@ -16,30 +16,6 @@ The config schema:
 
 **Default**: null
 
-- `permission.user`
-
-  User owner of the files and directories. If empty Flyer will keep the user unchanged.
-
-  **Default**: null
-
-- `permission.group`
-
-  Group of the files and directories. If empty Flyer will keep the group unchanged.
-
-  **Default**: null
-
-- `permission.acl`
-
-  ACL (Access Control List) definitions for directories. If empty Flyer will keep the ACL unchanged.
-
-  **Default**: null
-
-- `permission.default_permission`
-
-  Default permission specified using octal values (e.g. 644, 744). This will set all directories and files to the provided permission value before applying the `permission.writable_paths` option. If empty Flyer will keep the default permission unchanged.
-
-  **Default**: null
-
 - `permission.writable_paths`
 
   An array containing list of files or directories that need to be writable.
@@ -76,7 +52,7 @@ The config schema:
 
   Select deployment template.
 
-  **Supported values**: 'web.litespeed', 'web.nginx', 'general_process.supervisord', 'general_process.systemd'A
+  **Supported values**: 'web.litespeed', 'web.nginx', 'general_process.supervisord', 'general_process.systemd'
 
 - `template.params.<param>`
 
@@ -114,7 +90,7 @@ The config schema:
 
   **Default**: null
 
-- `shared_dirs`
+- `shared.dirs`
 
   List of directories to be linked to shared dir.
 
@@ -123,9 +99,39 @@ The config schema:
   Example:
 
   ```yaml
-  shared_dirs:
-    - storage
-    - var
+  shared:
+    dirs:
+      - storage
+      - var
+  ```
+
+- `shared.files`
+
+  List of files to be linked to shared dir.
+
+  **Default**: null
+
+  Example:
+
+  ```yaml
+  shared:
+    files:
+      - assets/json/users.json
+      - assets/csv/pricing.csv
+  ```
+
+- `additional.files`
+
+  List of additional files to be copied to.
+
+  **Default**: null
+
+  Example:
+
+  ```yaml
+  additional:
+    files:
+      - .env
   ```
 
 ## Environment variables

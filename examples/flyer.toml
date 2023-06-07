@@ -5,7 +5,7 @@ acl_list = []
 default_permission = []
 writable_paths = []
 
-[command_hook]
+[command_hooks]
 post_deploy = "echo post_deploy"
 pre_symlink = "echo pre_symlink"
 post_symlink = "echo post_symlink"

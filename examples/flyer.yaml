@@ -13,7 +13,7 @@ permission:
     - path: storage/some_random_file
       by: user
 
-command_hook:
+command_hooks:
   post_deploy: |
     echo post deploy
   pre_symlink: |

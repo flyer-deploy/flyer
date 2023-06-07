@@ -1,0 +1,89 @@
+# Design doc
+
+Currently it only supports artifact archived with zip format. Otherwise throw error.
+
+## Flow
+
+1. Run `pre_deploy` command hooks.
+2. Unzip the artifact to the release directory. Release directory will be `{{deploy_path}}`/release.`<current_date>`.`<sequence_number>`, where `<sequence_number>` is +1 increment of the largest `<current_date>`.`<sequence_number>` in the directory.
+3. Run `post_release` command hooks.
+4. Set required permission for the release directory and its files and/or subdirectories.
+5. Run `pre_symlink` command hooks.
+6. Set symlink of `{{deploy_path}}`/current to point to the current release sequence number. Webserver should be configured to point to this directory.
+7. Run `post_symlink` command hooks.
+8. Delete previous releases if exist.
+
+## Permissions
+
+These algorithms are taken from deploy/recipes/writable.php from Deployer's common recipe with a few modifications.
+
+Optionally specify `APP_USER` and `APP_GROUP` environment variables. These variables will be used as the user and group of the files and directories. If not specified Flyer will leave the existing unchanged.
+
+### Writable files and directories
+
+What users care mostly are what files and directories needed to be writable. In order to achieve that, we have several options.
+
+1. First and foremost is obviously set the permission bits (`chmod`) of either the user or group to be able to write to a file and/or directory. Add execute bit if it's a directory.
+
+   <!-- However, only -->
+
+### ACL
+
+Use `setfacl` to set directories ACL.
+
+## Shared files and directories
+
+This section describes how Flyer handles shared files and directories. This algorithm is taken from the deploy/recipe/shared.php from Deployer's common recipe with a few modifications.
+
+1. Flyer accepts two config: `shared.dirs` and `shared.files`, arrays of strings containing dirs and files to be shared, respectively.
+
+2. Validate shared dirs to prevent duplicates.
+
+3. Flyer will see environment variable `SHARED_ROOT_DIR`, is a dir to put the shared dirs and files.
+
+4. Flyer will see environment variable `APP_ID`, is a string to uniquely identify an application. Flyer will store the shared dirs and files under the directory `$SHARED_ROOT_DIR`/`$PROJECT_ID`.
+
+5. Copy all directories specified in `shared.dirs` to the shared dir path. Directory tree structure must be preserved. E.g. if the directory name is assets/uploads/json, then create the full path to the shared dir path, which will be `$SHARED_ROOT_DIR`/`$PROJECT_DIR`/assets/uploads/json.
+
+6. Remove the directory in the release. In the example above the assets/uploads/json dir will be removed.
+
+7. Create path to the shared dir in release dir if it does not exist since symlink will not create the full path. E.g if the path is assets/uploads/json, then create the assets/uploads directory.
+
+8. Create symlink from to the shared dir.
+
+9. Copy all files specified in `shared.files` to the shared dir path.
+
+### Error handling
+
+- If the dir is already shared, but then developer specifies a shared file inside the same directory, what would happen?
+
+  It is possible that developer would create a config as horrendous as this:
+
+  ```yaml
+  shared:
+    dirs:
+      - assets/uploads/json
+    files:
+      - assets/uploads/json/users.json
+  ```
+
+## Additional files
+
+## Low-level commands
+
+There are [great open-source command line tools alternatives to common unix commands available](https://github.com/ibraheemdev/modern-unix). Many of them are much faster than the built-in commands. If the alternative commands exist, use them.
+
+Here are the example of command alternatives:
+
+| Unix command | Alternative                                                                     |
+| ------------ | ------------------------------------------------------------------------------- |
+| find         | [fd](<[https://github.com/sharkdp/fd](https://github.com/sharkdp/fd)>)          |
+| cp           | [fcp](<[https://github.com/Svetlitski/fcp](https://github.com/Svetlitski/fcp)>) |
+
+## A few thoughts
+
+### Use a separate config file to configure the internal behaviour
+
+Since we have so many environment variables to configure Flyer's behaviour internally, it could get messy that we have to define those many variables. Maybe have a separate config to configure flyer internally?
+
+## TODO: more efficient and parallel compression and decompression
