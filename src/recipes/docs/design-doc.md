@@ -55,7 +55,7 @@ This section describes how Flyer handles shared files and directories. This algo
 
 10. Remove file from release.
 
-11. Ensure dir needs to be available in release. E.g. if the file is assets/uploads/json/users.json, the directory assets/uploads/json needs to exist in release.
+11. Ensure dir is available in release. E.g. if the file is assets/uploads/json/users.json, the directory assets/uploads/json needs to exist in release.
 
 12. Create symlink from the release file to the file in shared dir.
 
