@@ -131,7 +131,7 @@ The config schema:
   ```yaml
   additional:
     files:
-      - .env
+      - /tmp/app_envs/.env
   ```
 
 ## Environment variables
