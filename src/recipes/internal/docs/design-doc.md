@@ -54,8 +54,8 @@ What users care mostly are what files and directories needed to be writable. In 
 Easy option, just set the permission bits (`chmod`) of either the user or group to be able to write to a file and/or directory. Add execute bit if it's a directory.
 
 ```sh
-find $writable -type f -exec chmod 640 {} \;
-find $writable -type d -exec chmod 750 {} \;
+find $writable -type f -exec chown g+w {} \;
+find $writable -type d -exec chmod g+wx {} \;
 ```
 
 #### 2. Default ACL
