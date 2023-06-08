@@ -39,9 +39,9 @@ Currently it only supports artifact archived with zip format. Otherwise throw er
 
 4.  If `APP_USER` environment variable is set, do these:
 
-    4.1. Check if `APP_USER` is either `root` or a member of the group `APP_GROUP` (if set). If true, unzip as that user. This will make the files owned by `APP_USER` without chown-ing the entire directory and all subdirectories. If not, throw error saying that `APP_ROOT` must be `root` or a member of the group `APP_GROUP`.
+    4.1. Check if `APP_USER` is either `root` or a member of the group `APP_GROUP` (if set). If true, unzip as that user. If not, throw error saying that `APP_ROOT` must be `root` or a member of the group `APP_GROUP`. This will make the unzipped files owned by `APP_USER` without chown-ing the entire directory and all subdirectories.
 
-    Why?
+    Why the check?
 
     Somehow if running `unzip` with a user that is either not `root` or not a member of the directory's SGID group will create the files with owner user:user, which is not what we want.
 
