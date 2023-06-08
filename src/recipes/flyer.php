@@ -22,7 +22,7 @@ task('deploy:start', function () {
 });
 
 
-task('deploy:prepare', function() {
+task('deploy:prepare', function () {
     set('project_name', getenv('PROJECT_NAME'));
     set('repo_name', getenv('REPO_NAME'));
     set('artifact_file', getenv('ARTIFACT_FILE'));
