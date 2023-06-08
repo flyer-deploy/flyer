@@ -1,17 +1,17 @@
-permission:
-  user: www-data
-  group: www-data
-  acl_list:
-  default_permission:
-  writable_paths:
-    - path: storage/logs
-      by: group
-      recursive: true
-    - path: storage/uploads
-      by: user
-      recursive: false
-    - path: storage/some_random_file
-      by: user
+# permission:
+#   user: www-data
+#   group: www-data
+#   acl_list:
+#   default_permission:
+#   writable_paths:
+#     - path: storage/logs
+#       by: group
+#       recursive: true
+#     - path: storage/uploads
+#       by: user
+#       recursive: false
+#     - path: storage/some_random_file
+#       by: user
 
 command_hooks:
   post_deploy: |
@@ -22,3 +22,11 @@ command_hooks:
     echo post symlink
   start: |
     echo start
+
+shared:
+  dirs:
+    - storage
+  files:
+    - routes/api.php
+    - routes/console.php
+    - assets/csv/pricing.csv

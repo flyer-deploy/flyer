@@ -6,8 +6,8 @@ task('deploy:shared:dirs', function() {
     $shared_path = get('shared_path');
     $config = get('config');
 
-    foreach ($config['shared']['dir'] as $a) {
-        foreach ($config['shared']['dir'] as $b) {
+    foreach ($config['shared']['dirs'] as $a) {
+        foreach ($config['shared']['dirs'] as $b) {
             if ($a !== $b && strpos(rtrim($a, '/') . '/', rtrim($b, '/') . '/') === 0) {
                 throw new Exception("Can not share same dirs `$a` and `$b`.");
             }
@@ -32,7 +32,7 @@ task('deploy:shared:dirs', function() {
         run("mkdir -p `dirname {{release_path}}/$dir`");
 
         // Symlink shared dir to release dir
-        run("{{bin/symlink}} $shared_path/$dir {{release_path}}/$dir");
+        run("ln -sfn $shared_path/$dir {{release_path}}/$dir");
     }
 });
 
@@ -66,7 +66,7 @@ task('deploy:shared:files', function() {
         run("[ -f $shared_path/$file ] || touch $shared_path/$file");
 
         // Symlink shared dir to release dir
-        run("{{bin/symlink}} $shared_path/$file {{release_path}}/$file");
+        run("ln $shared_path/$file {{release_path}}/$file");
     }
 });
 
@@ -76,9 +76,10 @@ task('deploy:shared', function () {
 
     // Get shared path
     $shared_path = "/var/share/" . get('project_name') . '/' . get('repo_name');
-    if (get('shared_dir') != false) {
-        $shared_path = get('shared_dir');
+    if (get('shared_path') != false) {
+        $shared_path = get('shared_path');
     }
+
     set('shared_path', $shared_path);
 
     if (isset($config['shared']['dirs'])) {
