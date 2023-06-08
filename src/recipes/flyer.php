@@ -23,21 +23,37 @@ task('deploy:start', function () {
 
 
 task('deploy:prepare', function () {
-    set('project_name', getenv('PROJECT_NAME'));
-    set('repo_name', getenv('REPO_NAME'));
+    set('app_id', getenv('APP_ID'));
     set('artifact_file', getenv('ARTIFACT_FILE'));
     set('deploy_path', getenv('DEPLOY_PATH'));
     set('shared_path', getenv('SHARED_PATH'));
+    set('additional_files_dir', getenv('ADDITIONAL_FILES_DIR'));
 
     set('current_path', '{{deploy_path}}/current');
 });
 
 
+task('deploy:additional', function() {
+    $config = get('config');
+    
+    if (!isset($config['additional']['files'])) {
+        if (get('additional_files_dir') === false) {
+            throw new ConfigurationException("ADDITIONAL_FILES_DIR is not specified while the configuration flyer.yaml did.");
+        }
+
+        foreach($config['additional']['files'] as $file) {
+            writeln("Copying file {{additional_files_dir}}/$file to {{release_path}}/$file");
+            run("cp {{additional_files_dir}}/$file {{release_path}}/$file");
+        }
+    }
+});
+
 task('deploy', function () {
     invoke('deploy:prepare');
     invoke('deploy:release');
-    // invoke('deploy:permission');
-    invoke('deploy:shared');
+    invoke('deploy:permission');
+    invoke('additional');
+    invoke('deploy:shared'); 
     invoke('deploy:symlink');
     invoke('cleanup');
 });
