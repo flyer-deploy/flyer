@@ -36,9 +36,9 @@ task('deploy:prepare', function () {
 task('deploy:additional', function() {
     $config = get('config');
     
-    if (!isset($config['additional']['files'])) {
+    if (isset($config['additional']['files'])) {
         if (get('additional_files_dir') === false) {
-            throw new ConfigurationException("ADDITIONAL_FILES_DIR is not specified while the configuration flyer.yaml did.");
+            error("ADDITIONAL_FILES_DIR is not specified while the configuration flyer.yaml did.");
         }
 
         foreach($config['additional']['files'] as $file) {
@@ -52,7 +52,7 @@ task('deploy', function () {
     invoke('deploy:prepare');
     invoke('deploy:release');
     invoke('deploy:permission');
-    invoke('additional');
+    invoke('deploy:additional');
     invoke('deploy:shared'); 
     invoke('deploy:symlink');
     invoke('cleanup');
