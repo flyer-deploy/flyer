@@ -13,6 +13,12 @@ Currently it only supports artifact archived with zip format. Otherwise throw er
 7. Run `post_symlink` command hooks.
 8. Delete previous releases if exist.
 
+## Configuration
+
+### Environment variables substitution
+
+If Flyer sees a string with pattern `${[a-zA-Z0-9_]+}` somewhere in the config file, substitute it with the value of the environment variable it is referring to. Example, if there's `${THIS_IS_FROM_ENVIRONMENT_VARIABLE}` then substitute it with the value of environment variable `$THIS_IS_FROM_ENVIRONMENT_VARIABLE`. If the variable does not exist, substitute it with empty string.
+
 ## Permissions
 
 1.  Flyer reads optional `APP_USER` and `APP_GROUP` environment variables. These variables will be used as the user and group of the files and directories.
@@ -139,6 +145,10 @@ additional:
 This will copy from `$ADDITIONAL_FILES_DIR/.env` and `$ADDITIONAL_FILES_DI/a_file_from_external_source` to the release directory.
 
 If the `ADDITIONAL_FILES_DIR` is not provided but the `additional.files` is specified, throw error.
+
+## Template
+
+## Logging
 
 ## Low-level commands
 
