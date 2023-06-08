@@ -92,6 +92,8 @@ This section describes how Flyer handles shared files and directories. This algo
 
 ## Additional files
 
+Flyer accepts `additional.files` and `additional.dirs`. Just copy all of the files and directories in `additional.files` and `additional.dirs`, respectively, to the release directory.
+
 ## Low-level commands
 
 There are [great open-source command line tools alternatives to common unix commands available](https://github.com/ibraheemdev/modern-unix). Many of them are much faster than the built-in commands. If the alternative commands exist, use them.

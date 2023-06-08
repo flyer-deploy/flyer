@@ -16,8 +16,8 @@
 shared:
   dirs:
     - storage
-  files:
-    - storage/some_random_file
+    - app/Console/Kernel.php
+    - app/Exceptions
 
 command_hooks:
   post_deploy: |
@@ -28,11 +28,3 @@ command_hooks:
     echo post symlink
   start: |
     echo start
-
-shared:
-  dirs:
-    - storage
-  files:
-    - routes/api.php
-    - routes/console.php
-    - assets/csv/pricing.csv

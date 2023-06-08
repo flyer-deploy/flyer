@@ -122,7 +122,21 @@ The config schema:
 
 - `additional.files`
 
-  List of additional files to be copied to.
+  List of additional files to be copied to release.
+
+  **Default**: null
+
+  Example:
+
+  ```yaml
+  additional:
+    files:
+      - .env
+  ```
+
+- `additional.dirs`
+
+  List of additional dirs to be copied to release.
 
   **Default**: null
 
