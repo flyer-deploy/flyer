@@ -150,12 +150,6 @@ The config schema:
 
   **Supported values**: 'promtail'
 
-- `logging.driver.type`
-
-  What to use to manage log files.
-
-  **Supported values**: 'promtail'
-
 - `logging.rotate`
 
   Whether to rotate log files or not.
@@ -163,6 +157,16 @@ The config schema:
   **Default**: true if `logging.driver.type` is set to 'promtail'
 
 - `logging.log_files`
+
+  List of log files. It is possible to specify glob pattern.
+
+  Example:
+
+  ```yaml
+  logging:
+    log_files:
+      - storage/logs/**/*.log
+  ```
 
 ## Environment variables
 
