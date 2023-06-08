@@ -46,7 +46,7 @@ task('deploy:release', function () {
     writeln("Checking deploy path.");
     $deploy_path = get('deploy_path');
     if (file_exists($deploy_path) && !is_dir($deploy_path)) {
-        throw new ConfigurationException("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
+        error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
     }
 
     // Create or read deploy path

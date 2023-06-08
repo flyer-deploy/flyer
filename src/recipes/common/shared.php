@@ -75,7 +75,7 @@ task('deploy:shared', function () {
     $config = get('config');
 
     // Get shared path
-    $shared_path = "/var/share/" . get('project_name') . '/' . get('repo_name');
+    $shared_path = "/var/share/" . get('app_id');
     if (get('shared_path') != false) {
         $shared_path = get('shared_path');
     }
