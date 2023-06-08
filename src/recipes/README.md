@@ -134,20 +134,6 @@ The config schema:
       - .env
   ```
 
-- `additional.dirs`
-
-  List of additional dirs to be copied to release.
-
-  **Default**: null
-
-  Example:
-
-  ```yaml
-  additional:
-    files:
-      - .env
-  ```
-
 ## Environment variables
 
 ### User-provided variables

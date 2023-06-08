@@ -43,7 +43,7 @@ This section describes how Flyer handles shared files and directories. This algo
 
 4. Flyer will see environment variable `APP_ID`, is a string to uniquely identify an application. Flyer will store the shared dirs and files under the directory `$SHARED_ROOT_DIR`/`$APP_ID`.
 
-5. Copy all directories specified in `shared.dirs` to the shared dir path. Directory tree structure must be preserved. E.g. if the directory name is assets/uploads/json, then create the full path to the shared dir path, which will be `$SHARED_ROOT_DIR`/`$PROJECT_DIR`/assets/uploads/json.
+5. Copy all directories specified in `shared.dirs` to the shared dir path. Directory tree structure must be preserved. E.g. if the directory name is assets/uploads/json, then create the full path to the shared dir path, which will be `$SHARED_ROOT_DIR`/`$APP_ID`/assets/uploads/json.
 
 6. Remove the directory in the release. In the example above the assets/uploads/json dir will be removed.
 
@@ -77,12 +77,12 @@ This section describes how Flyer handles shared files and directories. This algo
 
   Following is just a theoretical of what would happen:
 
-  1. Flyer will copy `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{project_id}}/assets/uploads/`
+  1. Flyer will copy `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{app_id}}/assets/uploads/`
 
   2. Removes `{{release_path}}/assets/uploads/json` in release dir
-  3. Create symlink from `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{project_id}}/assets/uploads/json`
+  3. Create symlink from `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{app_id}}/assets/uploads/json`
 
-  4. For the files, flyer will copy (notice carefully this part) the `{{release_path}}/assets/uploads/json/users.json` to `{{shared_dir}}/{{project_id}}/assets/uploads/json`. Unfortunately, `{{release_path}}/assets/uploads/json/` is already symlinked to the shared dir. Meaning we are copying files in the symlinked directory to the shared dir, which actually copies nothing.
+  4. For the files, flyer will copy (notice carefully this part) the `{{release_path}}/assets/uploads/json/users.json` to `{{shared_dir}}/{{app_id}}/assets/uploads/json`. Unfortunately, `{{release_path}}/assets/uploads/json/` is already symlinked to the shared dir. Meaning we are copying files in the symlinked directory to the shared dir, which actually copies nothing.
 
   5. Flyer will REMOVE (notice carefully this part) `{{release_path}}/assets/uploads/json/users.json`. Unfortunately, `{{release_path}}/assets/uploads/json/` is already symlinked to the shared dir. Meaning we are removing files in the symlinked directory, which actually removes the files in the shared dir itself, which in turn removes nothing.
 
@@ -92,7 +92,7 @@ This section describes how Flyer handles shared files and directories. This algo
 
 ## Additional files
 
-Flyer accepts `additional.files` and `additional.dirs`. Just copy all of the files and directories in `additional.files` and `additional.dirs`, respectively, to the release directory.
+Flyer accepts `additional.files`. Just copy all of the files in `additional.files` to the release directory.
 
 ## Low-level commands
 
