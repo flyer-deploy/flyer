@@ -116,6 +116,8 @@ additional:
 
 This will copy from `$ADDITIONAL_FILES_DIR/.env` and `$ADDITIONAL_FILES_DI/a_file_from_external_source` to the release directory.
 
+If the `ADDITIONAL_FILES_DIR` is not provided but the `additional.files` is specified, throw error.
+
 ## Low-level commands
 
 There are [great open-source command line tools alternatives to common unix commands available](https://github.com/ibraheemdev/modern-unix). Many of them are much faster than the built-in commands. If the alternative commands exist, use them.
