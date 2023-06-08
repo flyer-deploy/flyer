@@ -15,17 +15,28 @@ Currently it only supports artifact archived with zip format. Otherwise throw er
 
 ## Permissions
 
-These algorithms are taken from deploy/recipes/writable.php from Deployer's common recipe with a few modifications.
+1. Optionally specify `APP_USER` and `APP_GROUP` environment variables. These variables will be used as the user and group of the files and directories. If not specified Flyer will leave the existing unchanged.
 
-Optionally specify `APP_USER` and `APP_GROUP` environment variables. These variables will be used as the user and group of the files and directories. If not specified Flyer will leave the existing unchanged.
+2. Before unzipping artifact to the release directory, set sticky bits
 
 ### Writable files and directories
 
 What users care mostly are what files and directories needed to be writable. In order to achieve that, we have several options.
 
-1. First and foremost is obviously set the permission bits (`chmod`) of either the user or group to be able to write to a file and/or directory. Add execute bit if it's a directory.
+#### 1. chmod
 
-   <!-- However, only -->
+Easy option, just set the permission bits (`chmod`) of either the user or group to be able to write to a file and/or directory. Add execute bit if it's a directory.
+
+Run these for commands for each file or directory:
+
+```sh
+find $file_or_dir -type f -exec chmod
+
+```
+
+#### 2. Default ACL
+
+TBD
 
 ### ACL
 
@@ -92,7 +103,18 @@ This section describes how Flyer handles shared files and directories. This algo
 
 ## Additional files
 
-Flyer accepts `additional.files`. Just copy all of the files in `additional.files` to the release directory.
+Flyer accepts `additional.files` and `ADDITIONAL_FILES_DIR` environment variable. For each file in `additional.files`, copy the corresponding file inside `ADDITIONAL_FILES_DIR` to the release directory.
+
+Example flyer.yaml config:
+
+```yaml
+additional:
+  files:
+    - .env
+    - a_file_from_external_source
+```
+
+This will copy from `$ADDITIONAL_FILES_DIR/.env` and `$ADDITIONAL_FILES_DI/a_file_from_external_source` to the release directory.
 
 ## Low-level commands
 

@@ -14,7 +14,7 @@ Flyer will check these files in the artifact directory in order:
 
 The config schema:
 
-**Default**: null
+### Permission
 
 - `permission.writable_paths`
 
@@ -48,6 +48,8 @@ The config schema:
   - `by` defaults to "user"
   - `recursive` defaults to `false`
 
+### Template
+
 - `template.name`
 
   Select deployment template.
@@ -59,6 +61,8 @@ The config schema:
   Template may need to be provided parameters.
 
   **Default**: null
+
+### Command hooks
 
 - `command_hooks.pre_deploy`
 
@@ -90,6 +94,8 @@ The config schema:
 
   **Default**: null
 
+### Shared
+
 - `shared.dirs`
 
   List of directories to be linked to shared dir.
@@ -120,6 +126,8 @@ The config schema:
       - assets/csv/pricing.csv
   ```
 
+### Additional files
+
 - `additional.files`
 
   List of additional files to be copied to release.
@@ -133,6 +141,28 @@ The config schema:
     files:
       - /tmp/app_envs/.env
   ```
+
+### Logging
+
+- `logging.driver.type`
+
+  What to use to manage log files. If you want for logs to be available in Grafana, set to 'promtail'.
+
+  **Supported values**: 'promtail'
+
+- `logging.driver.type`
+
+  What to use to manage log files.
+
+  **Supported values**: 'promtail'
+
+- `logging.rotate`
+
+  Whether to rotate log files or not.
+
+  **Default**: true if `logging.driver.type` is set to 'promtail'
+
+- `logging.log_files`
 
 ## Environment variables
 
