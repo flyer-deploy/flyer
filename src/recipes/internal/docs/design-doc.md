@@ -15,7 +15,7 @@ Currently it only supports artifact archived with zip format. Otherwise throw er
 
 ## Permissions
 
-1.  Optionally specify `APP_USER` and `APP_GROUP` environment variables. These variables will be used as the user and group of the files and directories.
+1.  Flyer reads optional `APP_USER` and `APP_GROUP` environment variables. These variables will be used as the user and group of the files and directories.
 
 2.  Before unzipping artifact to the release directory, do these steps:
 
