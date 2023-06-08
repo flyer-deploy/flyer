@@ -43,7 +43,7 @@ Currently it only supports artifact archived with zip format. Otherwise throw er
 
     Why the check?
 
-    Somehow if running `unzip` with a user that is either not `root` or not a member of the directory's SGID group will create the files with owner user:user, which is not what we want.
+    Somehow running `unzip` with a user that is either not `root` or not a member of the directory's SGID group will create the files with owner user:user, which is not what we want.
 
 ### Writable files and directories
 
