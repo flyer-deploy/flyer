@@ -55,6 +55,7 @@ cp $script_dir/flyer.yaml $directory
 
 filename=$(readlink -f $filename)
 cd "$directory" || exit
+touch $directory/storage/some_random_file
 zip -0 -r $filename .
 
 echo "Laravel project created and zipped successfully!"
