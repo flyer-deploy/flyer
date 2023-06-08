@@ -53,6 +53,8 @@ What users care mostly are what files and directories needed to be writable. In 
 
 Easy option, just set the permission bits (`chmod`) of either the user or group to be able to write to a file and/or directory. Add execute bit if it's a directory.
 
+For each of the directory or file, run on it:
+
 ```sh
 find $writable -type f -exec chown g+w {} \;
 find $writable -type d -exec chmod g+wx {} \;
