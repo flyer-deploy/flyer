@@ -15,5 +15,5 @@ function mandatory($value, $key)
 function mkdir_if_not_exists(string $dir)
 {   
     writeln("Creating dir $dir.");
-    run("test -d $dir || mkdir $dir");
+    run("test -d $dir || mkdir -p $dir");
 }

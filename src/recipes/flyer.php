@@ -8,7 +8,7 @@ require __DIR__ . '/../common/utils.php';
 require __DIR__ . '/common/permission.php';
 require __DIR__ . '/common/symlink.php';
 require __DIR__ . '/common/release.php';
-require __DIR__ . '/common/shared_dir.php';
+require __DIR__ . '/common/shared.php';
 
 localhost();
 
@@ -25,20 +25,19 @@ task('deploy:start', function () {
 task('deploy:prepare', function() {
     set('project_name', getenv('PROJECT_NAME'));
     set('repo_name', getenv('REPO_NAME'));
-    set('shared_dir', getenv('SHARED_DIR'));
     set('artifact_file', getenv('ARTIFACT_FILE'));
     set('deploy_path', getenv('DEPLOY_PATH'));
+    set('shared_path', getenv('SHARED_PATH'));
 
     set('current_path', '{{deploy_path}}/current');
-    set('release_list', array_map('basename', glob(get('deploy_path') . '/release.*')));
 });
 
 
 task('deploy', function () {
     invoke('deploy:prepare');
     invoke('deploy:release');
-    invoke('deploy:permission');
-    invoke('deploy:shared_dir');
+    // invoke('deploy:permission');
+    invoke('deploy:shared');
     invoke('deploy:symlink');
     invoke('cleanup');
 });

@@ -11,11 +11,6 @@ task('deploy:symlink:before', function () {
 });
 
 
-task('deploy:symlink:linking', function() {
-    run("ln -sfn {{new_release_path}} {{current_path}}");
-});
-
-
 task('deploy:symlink:after', function () {
     $config = get('config');
 
@@ -24,9 +19,14 @@ task('deploy:symlink:after', function () {
     }
 });
 
+
 task('deploy:symlink', function () {
     invoke('deploy:symlink:before');
-    invoke('deploy:symlink:linking');
+    
+    // Symlink release to current
+    writeln("Creating symbolic link {{release_path}} to {{current_path}}");
+    run("ln -sfn {{release_path}} {{current_path}}");
+
     invoke('deploy:symlink:after');
 });
 
