@@ -29,7 +29,7 @@ Easy option, just set the permission bits (`chmod`) of either the user or group 
 
 Run these for commands for each file or directory:
 
-```sh
+```shell
 find $file_or_dir -type f -exec chmod
 
 ```
@@ -124,10 +124,10 @@ There are [great open-source command line tools alternatives to common unix comm
 
 Here are the example of command alternatives:
 
-| Unix command | Alternative                                                                     |
-| ------------ | ------------------------------------------------------------------------------- |
-| find         | [fd](<[https://github.com/sharkdp/fd](https://github.com/sharkdp/fd)>)          |
-| cp           | [fcp](<[https://github.com/Svetlitski/fcp](https://github.com/Svetlitski/fcp)>) |
+| Unix command | Alternative                              |
+| ------------ | ---------------------------------------- |
+| find         | [fd](https://github.com/sharkdp/fd)      |
+| cp           | [fcp](https://github.com/Svetlitski/fcp) |
 
 ## A few thoughts
 
