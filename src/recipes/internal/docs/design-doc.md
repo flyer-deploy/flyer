@@ -15,17 +15,28 @@ Currently it only supports artifact archived with zip format. Otherwise throw er
 
 ## Permissions
 
-These algorithms are taken from deploy/recipes/writable.php from Deployer's common recipe with a few modifications.
+1. Optionally specify `APP_USER` and `APP_GROUP` environment variables. These variables will be used as the user and group of the files and directories. If not specified Flyer will leave the existing unchanged.
 
-Optionally specify `APP_USER` and `APP_GROUP` environment variables. These variables will be used as the user and group of the files and directories. If not specified Flyer will leave the existing unchanged.
+2. Before unzipping artifact to the release directory, set sticky bits
 
 ### Writable files and directories
 
 What users care mostly are what files and directories needed to be writable. In order to achieve that, we have several options.
 
-1. First and foremost is obviously set the permission bits (`chmod`) of either the user or group to be able to write to a file and/or directory. Add execute bit if it's a directory.
+#### 1. chmod
 
-   <!-- However, only -->
+Easy option, just set the permission bits (`chmod`) of either the user or group to be able to write to a file and/or directory. Add execute bit if it's a directory.
+
+Run these for commands for each file or directory:
+
+```shell
+find $file_or_dir -type f -exec chmod
+
+```
+
+#### 2. Default ACL
+
+TBD
 
 ### ACL
 
@@ -43,7 +54,7 @@ This section describes how Flyer handles shared files and directories. This algo
 
 4. Flyer will see environment variable `APP_ID`, is a string to uniquely identify an application. Flyer will store the shared dirs and files under the directory `$SHARED_ROOT_DIR`/`$APP_ID`.
 
-5. Copy all directories specified in `shared.dirs` to the shared dir path. Directory tree structure must be preserved. E.g. if the directory name is assets/uploads/json, then create the full path to the shared dir path, which will be `$SHARED_ROOT_DIR`/`$PROJECT_DIR`/assets/uploads/json.
+5. Copy all directories specified in `shared.dirs` to the shared dir path. Directory tree structure must be preserved. E.g. if the directory name is assets/uploads/json, then create the full path to the shared dir path, which will be `$SHARED_ROOT_DIR`/`$APP_ID`/assets/uploads/json.
 
 6. Remove the directory in the release. In the example above the assets/uploads/json dir will be removed.
 
@@ -77,12 +88,12 @@ This section describes how Flyer handles shared files and directories. This algo
 
   Following is just a theoretical of what would happen:
 
-  1. Flyer will copy `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{project_id}}/assets/uploads/`
+  1. Flyer will copy `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{app_id}}/assets/uploads/`
 
   2. Removes `{{release_path}}/assets/uploads/json` in release dir
-  3. Create symlink from `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{project_id}}/assets/uploads/json`
+  3. Create symlink from `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{app_id}}/assets/uploads/json`
 
-  4. For the files, flyer will copy (notice carefully this part) the `{{release_path}}/assets/uploads/json/users.json` to `{{shared_dir}}/{{project_id}}/assets/uploads/json`. Unfortunately, `{{release_path}}/assets/uploads/json/` is already symlinked to the shared dir. Meaning we are copying files in the symlinked directory to the shared dir, which actually copies nothing.
+  4. For the files, flyer will copy (notice carefully this part) the `{{release_path}}/assets/uploads/json/users.json` to `{{shared_dir}}/{{app_id}}/assets/uploads/json`. Unfortunately, `{{release_path}}/assets/uploads/json/` is already symlinked to the shared dir. Meaning we are copying files in the symlinked directory to the shared dir, which actually copies nothing.
 
   5. Flyer will REMOVE (notice carefully this part) `{{release_path}}/assets/uploads/json/users.json`. Unfortunately, `{{release_path}}/assets/uploads/json/` is already symlinked to the shared dir. Meaning we are removing files in the symlinked directory, which actually removes the files in the shared dir itself, which in turn removes nothing.
 
@@ -92,16 +103,31 @@ This section describes how Flyer handles shared files and directories. This algo
 
 ## Additional files
 
+Flyer accepts `additional.files` and `ADDITIONAL_FILES_DIR` environment variable. For each file in `additional.files`, copy the corresponding file inside `ADDITIONAL_FILES_DIR` to the release directory.
+
+Example flyer.yaml config:
+
+```yaml
+additional:
+  files:
+    - .env
+    - a_file_from_external_source
+```
+
+This will copy from `$ADDITIONAL_FILES_DIR/.env` and `$ADDITIONAL_FILES_DI/a_file_from_external_source` to the release directory.
+
+If the `ADDITIONAL_FILES_DIR` is not provided but the `additional.files` is specified, throw error.
+
 ## Low-level commands
 
 There are [great open-source command line tools alternatives to common unix commands available](https://github.com/ibraheemdev/modern-unix). Many of them are much faster than the built-in commands. If the alternative commands exist, use them.
 
 Here are the example of command alternatives:
 
-| Unix command | Alternative                                                                     |
-| ------------ | ------------------------------------------------------------------------------- |
-| find         | [fd](<[https://github.com/sharkdp/fd](https://github.com/sharkdp/fd)>)          |
-| cp           | [fcp](<[https://github.com/Svetlitski/fcp](https://github.com/Svetlitski/fcp)>) |
+| Unix command | Alternative                              |
+| ------------ | ---------------------------------------- |
+| find         | [fd](https://github.com/sharkdp/fd)      |
+| cp           | [fcp](https://github.com/Svetlitski/fcp) |
 
 ## A few thoughts
 
