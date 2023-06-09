@@ -62,7 +62,7 @@ Easy option, just set the permission bits (`chmod`) of either the user or group 
 For each of the directory or file, run on it:
 
 ```sh
-find $writable -type f -exec chown g+w {} \;
+find $writable -type f -exec chmod g+w {} \;
 find $writable -type d -exec chmod g+wx {} \;
 ```
 
@@ -147,6 +147,10 @@ This will copy from `$ADDITIONAL_FILES_DIR/.env` and `$ADDITIONAL_FILES_DI/a_fil
 If the `ADDITIONAL_FILES_DIR` is not provided but the `additional.files` is specified, throw error.
 
 ## Template
+
+Templates are just predefined command hooks. That's it. For each template-specific doc, refer to [templates docs directory](./templates/).
+
+Templates can only do so much. In fact, I really want to make templates to be as minimal as possible. But it's not a good idea to expect that developers know how to configure nginx efficiently and securely, for example.
 
 ## Logging
 
