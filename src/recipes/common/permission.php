@@ -15,22 +15,22 @@ task('deploy:permission:user_group', function () {
     run("chown -R $user:$group {{new_release_path}}");
 });
 
-task('deploy:permission:writeable_path', function () {
-    if (isset(get('config')['permission']['writeable_paths'])) {
-        $writeable_paths = get('config')['permission']['writeable_paths'];
+task('deploy:permission:writable_path', function () {
+    if (isset(get('config')['permission']['writable_paths'])) {
+        $writable_paths = get('config')['permission']['writable_paths'];
 
     } elseif (isset(get('config')['permission']['writable_paths'])) {
-        $writeable_paths = get('config')['permission']['writable_paths'];
+        $writable_paths = get('config')['permission']['writable_paths'];
 
     } else {
         return;
     }
 
-    foreach ($writeable_paths as $writeable_path) {
-        $path = get('new_release_path') . '/' .$writeable_path['path'];
+    foreach ($writable_paths as $writable_path) {
+        $path = get('new_release_path') . '/' .$writable_path['path'];
 
         $class = '';
-        switch ($writeable_path['by']) {
+        switch ($writable_path['by']) {
             case 'user':
                 $class = 'u';
                 break;
@@ -40,13 +40,13 @@ task('deploy:permission:writeable_path', function () {
         }
 
         $recursive = '';
-        if (isset($writeable_path['recursive'])) {
-            if ($writeable_path['recursive'] === true) {
+        if (isset($writable_path['recursive'])) {
+            if ($writable_path['recursive'] === true) {
                 $recursive = '-R';
             }
         }
 
-        writeln("Creating writeable path $path by $class");
+        writeln("Creating writable path $path by $class");
         run("chmod $recursive $class+w $path");
     }
 });
@@ -57,6 +57,6 @@ task('deploy:permission:acl', function() {
 
 task('deploy:permission', function() {
     invoke('deploy:permission:user_group');
-    invoke('deploy:permission:writeable_path');
+    invoke('deploy:permission:writable_path');
     invoke('deploy:permission:acl');
 });
