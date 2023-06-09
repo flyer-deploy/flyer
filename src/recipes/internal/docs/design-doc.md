@@ -13,11 +13,43 @@ Currently it only supports artifact archived with zip format. Otherwise throw er
 7. Run `post_symlink` command hooks.
 8. Delete previous releases if exist.
 
+## Configuration
+
+### Environment variables substitution
+
+If Flyer sees a string with pattern `${[a-zA-Z0-9_]+}` somewhere in the config file, substitute it with the value of the environment variable it is referring to. Example, if there's `${THIS_IS_FROM_ENVIRONMENT_VARIABLE}` then substitute it with the value of environment variable `$THIS_IS_FROM_ENVIRONMENT_VARIABLE`. If the variable does not exist, substitute it with empty string.
+
 ## Permissions
 
-1. Optionally specify `APP_USER` and `APP_GROUP` environment variables. These variables will be used as the user and group of the files and directories. If not specified Flyer will leave the existing unchanged.
+1.  Flyer reads optional `APP_USER` and `APP_GROUP` environment variables. These variables will be used as the user and group of the files and directories.
 
-2. Before unzipping artifact to the release directory, set sticky bits
+2.  Before unzipping artifact to the release directory, do these steps:
+
+    2.1. Set the user and the group owner of the release directory to `APP_USER` and `APP_GROUP` respectively. If only one of the variables are set, only chown with the available variable.
+
+    2.2. Run `chmod u+rwx,g+rx` to the directory.
+
+    2.3. If `APP_GROUP` is specified, set [SGID](<https://www.redhat.com/sysadmin/suid-sgid-sticky-bit#:~:text=for%20the%20user.-,group%20%2B%20s%20(pecial),-Commonly%20noted%20as>) (`chmod g+s {{release_dir}}`) of the release directory. Doing so will make newly created files group ownership set to that of the directory group owner, in this case, `APP_GROUP`. This avoids running chown on the entire directory and all subdirectories, which will take a long time on slow machine.
+
+3.  Flyer reads `WITH_SECURE_DEFAULT_PERMISSIONS` environment variable. If set to value '1', and `setfacl` command exists, before unzipping artifact to the release directory, set the ACL:
+
+    ```sh
+    setfacl -d -m g::r-- $release_dir
+    ```
+
+    Which **should** make the newly-created files have only read permission for groups (and execute if directory).
+
+    If `setfacl` command does not exist, throw error saying that that the server admin should be ashamed of not installing it.
+
+    > Note: this one is still not working properly. After unzip, group is still able to write to the files and directories.
+
+4.  If `APP_USER` environment variable is set, do these:
+
+    4.1. Check if `APP_USER` is either `root` or a member of the group `APP_GROUP` (if set). If true, unzip as that user. If not, throw error saying that `APP_ROOT` must be `root` or a member of the group `APP_GROUP`. This will make the unzipped files owned by `APP_USER` without chown-ing the entire directory and all subdirectories.
+
+    Why the check?
+
+    Somehow running `unzip` with a user that is either not `root` or not a member of the directory's SGID group will create the files with owner user:user, which is not what we want.
 
 ### Writable files and directories
 
@@ -27,20 +59,16 @@ What users care mostly are what files and directories needed to be writable. In 
 
 Easy option, just set the permission bits (`chmod`) of either the user or group to be able to write to a file and/or directory. Add execute bit if it's a directory.
 
-Run these for commands for each file or directory:
+For each of the directory or file, run on it:
 
-```shell
-find $file_or_dir -type f -exec chmod
-
+```sh
+find $writable -type f -exec chmod g+w {} \;
+find $writable -type d -exec chmod g+wx {} \;
 ```
 
 #### 2. Default ACL
 
 TBD
-
-### ACL
-
-Use `setfacl` to set directories ACL.
 
 ## Shared files and directories
 
@@ -84,22 +112,22 @@ This section describes how Flyer handles shared files and directories. This algo
       - assets/uploads/json/users.json
   ```
 
-  Horrendous. Might lead to unexpected kaboom if not handled correctly.
+Horrendous. Might lead to unexpected kaboom if not handled correctly.
 
-  Following is just a theoretical of what would happen:
+Following is just a theoretical of what would happen:
 
-  1. Flyer will copy `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{app_id}}/assets/uploads/`
+1. Flyer will copy `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{app_id}}/assets/uploads/`
 
-  2. Removes `{{release_path}}/assets/uploads/json` in release dir
-  3. Create symlink from `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{app_id}}/assets/uploads/json`
+2. Removes `{{release_path}}/assets/uploads/json` in release dir
+3. Create symlink from `{{release_path}}/assets/uploads/json` to `{{shared_dir}}/{{app_id}}/assets/uploads/json`
 
-  4. For the files, flyer will copy (notice carefully this part) the `{{release_path}}/assets/uploads/json/users.json` to `{{shared_dir}}/{{app_id}}/assets/uploads/json`. Unfortunately, `{{release_path}}/assets/uploads/json/` is already symlinked to the shared dir. Meaning we are copying files in the symlinked directory to the shared dir, which actually copies nothing.
+4. For the files, flyer will copy (notice carefully this part) the `{{release_path}}/assets/uploads/json/users.json` to `{{shared_dir}}/{{app_id}}/assets/uploads/json`. Unfortunately, `{{release_path}}/assets/uploads/json/` is already symlinked to the shared dir. Meaning we are copying files in the symlinked directory to the shared dir, which actually copies nothing.
 
-  5. Flyer will REMOVE (notice carefully this part) `{{release_path}}/assets/uploads/json/users.json`. Unfortunately, `{{release_path}}/assets/uploads/json/` is already symlinked to the shared dir. Meaning we are removing files in the symlinked directory, which actually removes the files in the shared dir itself, which in turn removes nothing.
+5. Flyer will REMOVE (notice carefully this part) `{{release_path}}/assets/uploads/json/users.json`. Unfortunately, `{{release_path}}/assets/uploads/json/` is already symlinked to the shared dir. Meaning we are removing files in the symlinked directory, which actually removes the files in the shared dir itself, which in turn removes nothing.
 
-  Solution:
+Solution:
 
-  - Validate. Just make sure that this is not possible. Prevent devs from specifying files that is inside the directories that are shared. In this case, shared dirs are enough since, well, it shares the whole directory, without specifying individual files.
+- Validate. Just make sure that this is not possible. Prevent devs from specifying files that is inside the directories that are shared. In this case, shared dirs are enough since, well, it shares the whole directory, without specifying individual files.
 
 ## Additional files
 
@@ -117,6 +145,14 @@ additional:
 This will copy from `$ADDITIONAL_FILES_DIR/.env` and `$ADDITIONAL_FILES_DI/a_file_from_external_source` to the release directory.
 
 If the `ADDITIONAL_FILES_DIR` is not provided but the `additional.files` is specified, throw error.
+
+## Template
+
+Templates are just predefined command hooks. That's it. For each template-specific doc, refer to [templates docs directory](./templates/).
+
+Templates can only do so much. In fact, I really want to make templates to be as minimal as possible. But it's not a good idea to expect that developers know how to configure nginx efficiently and securely, for example.
+
+## Logging
 
 ## Low-level commands
 
