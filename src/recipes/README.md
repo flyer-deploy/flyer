@@ -142,6 +142,23 @@ The config schema:
       - /tmp/app_envs/.env
   ```
 
+### Remove files
+
+- `remove`
+
+  List of files and/or directories to be removed before showing up in production.
+
+  **Default**: null
+
+  Example:
+
+  ```yaml
+  remove:
+    - test
+    - composer.json
+    - composer-lock.json
+  ```
+
 ### Logging
 
 - `logging.driver.type`
