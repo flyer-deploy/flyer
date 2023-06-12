@@ -2,8 +2,24 @@
 
 namespace Deployer;
 
+task('deploy:release:unzip_artifact', function () {
+    run("mkdir -p {{release_path}}");
+
+    if (get('app_group') !== false) {
+        run("chmod g+s {{release_dir}}");
+    }
+
+    if (get('with_secure_default_permission') === 1) {
+        run("setfacl -d -m g::r-- {{release_path}}");
+    }
+
+    writeln("Extracting artifact {{artifact_file}} to release {{release_path}}");
+    run("unzip -qq {{artifact_file}} -d {{release_path}}");
+});
+
+
 task('deploy:release:load_config', function () {
-    
+
     // Load yaml file from release
     $file = get('release_path') . '/flyer.yaml';
     if (file_exists($file)) {
@@ -49,9 +65,26 @@ task('deploy:release', function () {
         error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
     }
 
-    // Create or read deploy path
+    // Create deploy path
     run("mkdir -p {{deploy_path}}");
     set('release_list', array_map('basename', glob(get('deploy_path') . '/release.*')));
+
+    // Assign chown to deploy path
+    if (get('app_user') !== false && get('app_group') !== false) {
+        writeln("Running chown {{app_user}}:{{app_group}} {{deploy_path}}");
+        run("chown {{app_user}}:{{app_group}} {{deploy_path}}");
+
+    } elseif (get('app_user') !== false) {
+        writeln("Running chown {{app_user}} {{deploy_path}}");
+        run("chown {{app_user}} {{deploy_path}}");
+        
+    } elseif (get('app_group') !== false) {
+        writeln("Running chown {{app_group}} {{deploy_path}}");
+        run("chown {{app_group}} {{deploy_path}}");
+    }
+
+    // Assign chmod to deploy path
+    run("chmod u+rwx,g+rx  {{deploy_path}}");
 
     $release_list = get('release_list');
     $current_date = date('Ymd');
@@ -69,10 +102,7 @@ task('deploy:release', function () {
     set('release', $new_release);
     set('release_path', '{{deploy_path}}/{{release}}');
 
-    // Unzipping artifact to release
-    writeln("Extracting artifact {{artifact_file}} to release {{release_path}}");
-    run("unzip -qq {{artifact_file}} -d {{release_path}}");
-
+    invoke('deploy:release:unzip_artifact');
     invoke('deploy:release:load_config');
     invoke('deploy:release:after');
 });
