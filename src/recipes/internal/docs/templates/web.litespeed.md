@@ -15,7 +15,7 @@ template:
 
 `post_release` command hook:
 
-1. Generate context config and put to `context-{{APP_ID}}.conf` file within `FLYER_WEB_LITESPEED_CONTEXTS_DIR` directory
+1. Generate context config and put to `context-$APP_ID.conf` file within `FLYER_WEB_LITESPEED_CONTEXTS_DIR` directory
 
 `post_symlink` command hook:
 

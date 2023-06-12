@@ -2,7 +2,7 @@
 
 ## The `current` path
 
-Using `current` path that points to the latest release version can greatly reduce deployment time since there is only going to be one copy operation. However, this solution to the old deployer which performed at least four copy operations is not free. Consider this possibility:
+Using `current` path that points to the latest release version can greatly reduce deployment time since there is only going to be one copy operation. However, this solution to the old deployer which performed at least four copy operations is not _**free**_. Consider this possibility:
 
 1. Copy artifact as usual.
 
@@ -31,6 +31,8 @@ We can do the same thing (the `production_backup` part), minus the so many copy 
 3. After symlinking the current release to `current`, the `post_symlink` command hook will be run. Again, template **must** configure the software it manages to point the web root back to the `current`
 
 4. Remove `current_backup` symlink file after running the `post_symlink` command hook
+
+Apparently, it is still **FREE** BAHAHAHAHA LETSGO.
 
 ### So many tight coupling?
 
