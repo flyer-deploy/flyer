@@ -6,7 +6,7 @@ default_permission = []
 writable_paths = []
 
 [command_hooks]
-post_deploy = "echo post_deploy"
+post_release = "echo post_release"
 pre_symlink = "echo pre_symlink"
 post_symlink = "echo post_symlink"
 start = "echo start"

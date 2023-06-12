@@ -20,7 +20,7 @@ shared:
     - app/Exceptions
 
 command_hooks:
-  post_deploy: |
+  post_release: |
     echo post deploy
   pre_symlink: |
     echo pre symlink

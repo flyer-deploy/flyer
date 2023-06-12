@@ -6,18 +6,20 @@ Currently it only supports artifact archived with zip format. Otherwise throw er
 
 1. Run `pre_deploy` command hooks.
 2. Unzip the artifact to the release directory. Release directory will be `{{deploy_path}}`/release.`<current_date>`.`<sequence_number>`, where `<sequence_number>` is +1 increment of the largest `<current_date>`.`<sequence_number>` in the directory.
-3. Run `post_release` command hooks.
-4. Set required permission for the release directory and its files and/or subdirectories.
-5. Run `pre_symlink` command hooks.
-6. Set symlink of `{{deploy_path}}`/current to point to the current release sequence number. Webserver should be configured to point to this directory.
-7. Run `post_symlink` command hooks.
-8. Delete previous releases if exist.
+3. Create `current_backup` symlink that points to the previous release directory.
+4. Run `post_release` command hooks.
+5. Set required permission for the release directory and its files and/or subdirectories.
+6. Run `pre_symlink` command hooks.
+7. Set symlink of `{{deploy_path}}`/current to point to the current release sequence number. Webserver should be configured to point to this directory.
+8. Run `post_symlink` command hooks.
+9. Delete the `current_backup` symlink.
+10. Delete previous releases if exist.
 
 ## Configuration
 
 ### Environment variables substitution
 
-If Flyer sees a string with pattern `${[a-zA-Z0-9_]+}` somewhere in the config file, substitute it with the value of the environment variable it is referring to. Example, if there's `${THIS_IS_FROM_ENVIRONMENT_VARIABLE}` then substitute it with the value of environment variable `$THIS_IS_FROM_ENVIRONMENT_VARIABLE`. If the variable does not exist, substitute it with empty string.
+If Flyer sees a string with pattern `${[a-zA-Z0-9_]+}` (will be called _substitution macro_ onwards) somewhere in the config file, substitute it with the value of the environment variable it is referring to. Example, if there's `${FLYER_THIS_IS_FROM_ENVIRONMENT_VARIABLE}` then substitute it with the value of environment variable `$FLYER_THIS_IS_FROM_ENVIRONMENT_VARIABLE`. If the variable does not exist, substitute it with empty string. Only variables that start with `FLYER_` are allowed to be substituted. Flyer will throw error if it finds substitution macro in which the variables do not start with `FLYER_`.
 
 ## Permissions
 
