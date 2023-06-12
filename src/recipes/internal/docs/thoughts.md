@@ -34,8 +34,12 @@ We can do the same thing (the `production_backup` part), minus the so many copy 
 
 Apparently, it is still **FREE** BAHAHAHAHA LETSGO.
 
-### So many tight coupling?
+## So many tight coupling?
 
 I don't know. Let's think about it later.
 
 TODO: are we creating so many tight couplings?
+
+## Use a separate config file to configure the internal behaviour
+
+Since we have so many environment variables to configure Flyer's behaviour internally, it could get messy that we have to define those many variables. Maybe have a separate config to configure flyer internally?

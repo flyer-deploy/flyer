@@ -171,10 +171,4 @@ Here are the example of command alternatives:
 | find         | [fd](https://github.com/sharkdp/fd)      |
 | cp           | [fcp](https://github.com/Svetlitski/fcp) |
 
-## A few thoughts
-
-### Use a separate config file to configure the internal behaviour
-
-Since we have so many environment variables to configure Flyer's behaviour internally, it could get messy that we have to define those many variables. Maybe have a separate config to configure flyer internally?
-
 ## TODO: more efficient and parallel compression and decompression
