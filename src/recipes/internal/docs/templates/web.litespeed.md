@@ -6,7 +6,6 @@ template:
   params:
     webroot: public
     blocked_files:
-      - %{hidden_files}
       - .env
     extra_headers:
       x-frame-options: DENY
