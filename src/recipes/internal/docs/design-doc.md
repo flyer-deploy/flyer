@@ -148,6 +148,10 @@ This will copy from `$ADDITIONAL_FILES_DIR/.env` and `$ADDITIONAL_FILES_DI/a_fil
 
 If the `ADDITIONAL_FILES_DIR` is not provided but the `additional.files` is specified, throw error.
 
+## Remove files and/or directories
+
+Before symlinking, remove files and/or directories configured in `remove` configuration.
+
 ## Template
 
 Templates are just predefined command hooks. That's it. For each template-specific doc, refer to [templates docs directory](./templates/).
