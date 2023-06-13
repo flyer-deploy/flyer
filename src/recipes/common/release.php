@@ -2,6 +2,34 @@
 
 namespace Deployer;
 
+task('deploy:release:preparation', function () {
+    // Check if deploy path is a directory
+    writeln("Checking deploy path.");
+    $deploy_path = get('deploy_path');
+    if (file_exists($deploy_path) && !is_dir($deploy_path)) {
+        throw(error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory"));
+    }
+
+    // Create deploy path
+    run("mkdir -p {{deploy_path}}");
+    set('release_list', array_map('basename', glob(get('deploy_path') . '/release.*')));
+
+    // Assign chown to deploy path
+    if (get('app_user') !== false && get('app_group') !== false) {
+        run("chown {{app_user}}:{{app_group}} {{deploy_path}}");
+
+    } elseif (get('app_user') !== false) {
+        run("chown {{app_user}} {{deploy_path}}");
+
+    } elseif (get('app_group') !== false) {
+        run("chgrp {{app_group}} {{deploy_path}}");
+    }
+
+    // Assign chmod to deploy path
+    run("chmod u+rwx,g+rx  {{deploy_path}}");
+});
+
+
 task('deploy:release:unzip_artifact', function () {
     run("mkdir -p {{release_path}}");
 
@@ -57,34 +85,7 @@ task('deploy:release:after', function () {
 
 
 task('deploy:release', function () {
-
-    // Check if deploy path is a directory
-    writeln("Checking deploy path.");
-    $deploy_path = get('deploy_path');
-    if (file_exists($deploy_path) && !is_dir($deploy_path)) {
-        error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
-    }
-
-    // Create deploy path
-    run("mkdir -p {{deploy_path}}");
-    set('release_list', array_map('basename', glob(get('deploy_path') . '/release.*')));
-
-    // Assign chown to deploy path
-    if (get('app_user') !== false && get('app_group') !== false) {
-        writeln("Running chown {{app_user}}:{{app_group}} {{deploy_path}}");
-        run("chown {{app_user}}:{{app_group}} {{deploy_path}}");
-
-    } elseif (get('app_user') !== false) {
-        writeln("Running chown {{app_user}} {{deploy_path}}");
-        run("chown {{app_user}} {{deploy_path}}");
-        
-    } elseif (get('app_group') !== false) {
-        writeln("Running chown {{app_group}} {{deploy_path}}");
-        run("chown {{app_group}} {{deploy_path}}");
-    }
-
-    // Assign chmod to deploy path
-    run("chmod u+rwx,g+rx  {{deploy_path}}");
+    invoke('deploy:release:preparation');
 
     $release_list = get('release_list');
     $current_date = date('Ymd');
