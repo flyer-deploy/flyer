@@ -68,9 +68,9 @@ find $writable -type f -exec chmod g+w {} \;
 find $writable -type d -exec chmod g+wx {} \;
 ```
 
-#### 2. Default ACL
+#### Who can write?
 
-TBD
+It is specified in `WRITABLE_MODE` environment variable. It accepts two possible values: `by_user` and `by_group`, which configure whether the user or the group that can do write, respectively. 
 
 ## Shared files and directories
 

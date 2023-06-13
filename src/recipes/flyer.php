@@ -26,6 +26,7 @@ task('deploy:prepare', function () {
     set('app_id', getenv('APP_ID'));
     set('app_user', getenv('APP_USER'));
     set('app_group', getenv('APP_GROUP'));
+    set('writable_mode', getenv('WRITABLE_MODE'));
     set('artifact_file', getenv('ARTIFACT_FILE'));
     set('deploy_path', getenv('DEPLOY_PATH'));
     set('shared_path', getenv('SHARED_PATH'));

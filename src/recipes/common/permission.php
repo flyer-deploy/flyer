@@ -2,20 +2,7 @@
 
 namespace Deployer;
 
-task('deploy:permission:user_group', function () {
-    if (!isset(get('config')['permission']['user']) || isset(get('config')['permission']['group'])) {
-        return;
-    }
-
-    $permission = get('config')['permission'];
-    $user = $permission['user'];
-    $group = $permission['group'];
-
-    writeln("Assigning user and group to folder {{new_release_path}}");
-    run("chown -R $user:$group {{new_release_path}}");
-});
-
-task('deploy:permission:writable_path', function () {
+task('deploy:permission:writable_path', function() {
     if (isset(get('config')['permission']['writable_paths'])) {
         $writable_paths = get('config')['permission']['writable_paths'];
 
@@ -26,17 +13,21 @@ task('deploy:permission:writable_path', function () {
         return;
     }
 
+    $writable_mode = get('WRITABLE_MODE');
+
     foreach ($writable_paths as $writable_path) {
         $path = get('new_release_path') . '/' .$writable_path['path'];
 
         $class = '';
-        switch ($writable_path['by']) {
-            case 'user':
+        switch ($writable_mode) {
+            case 'by_user':
                 $class = 'u';
                 break;
-            case 'group':
+            case 'by_group':
                 $class = 'g';
                 break;
+            default:
+                throw error("Invalid writable_mode value: $writable_mode");
         }
 
         $recursive = '';
@@ -51,12 +42,6 @@ task('deploy:permission:writable_path', function () {
     }
 });
 
-task('deploy:permission:acl', function() {
-    echo "acl stuff \n";
-});
-
 task('deploy:permission', function() {
-    invoke('deploy:permission:user_group');
     invoke('deploy:permission:writable_path');
-    invoke('deploy:permission:acl');
 });

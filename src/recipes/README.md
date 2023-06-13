@@ -28,24 +28,20 @@ The config schema:
   permission:
     writable_paths:
       - path: storage/logs
-        by: group
         recursive: true
       - path: storage/uploads
-        by: user
         recursive: false
       - path: storage/some_random_file
-        by: user
   ```
 
   This will:
 
-  - Set storage/logs directory to be writable by group of the directories and/or files recursively,
-  - Set storage/uploads directory to be writable by user. It only applies to the storage/uploads directory since it's not recursive, and
-  - Set storage/some_random_file file to be writable by user. If `recursive` is specified, it will be ignored since it's a file.
+  - Set storage/logs directory to be recursively,
+  - Set storage/uploads directory to be writable. It only applies to the storage/uploads directory since it's not recursive, and
+  - Set storage/some_random_file file to be writable. If `recursive` is specified, it will be ignored since it's a file.
 
   Some defaults:
 
-  - `by` defaults to "user"
   - `recursive` defaults to `false`
 
 ### Template
