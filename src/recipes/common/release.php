@@ -2,7 +2,7 @@
 
 namespace Deployer;
 
-task('deploy:release:preparation', function () {
+task('deploy:release:preparation', function() {
     // Check if deploy path is a directory
     writeln("Checking deploy path.");
     $deploy_path = get('deploy_path');
@@ -10,23 +10,43 @@ task('deploy:release:preparation', function () {
         throw(error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory"));
     }
 
-    // Create deploy path
-    run("mkdir -p {{deploy_path}}");
-    set('release_list', array_map('basename', glob(get('deploy_path') . '/release.*')));
+    $release_list = get('release_list');
+    $current_date = date('Ymd');
+    $new_release  = "release.$current_date.1";
 
-    // Assign chown to deploy path
+    if (!empty($release_list)) {
+        natsort($release_list);
+        [$_, $date, $sequence] = explode('.', end($release_list));
+        if ($date === $current_date) {
+            $sequence++;
+            $new_release = "release.$current_date.$sequence";
+        }
+    }
+
+    set('release', $new_release);
+    set('release_path', '{{deploy_path}}/{{release}}');
+    run("mkdir -p {{release_path}}");
+
+    // Assign chown to release path
     if (get('app_user') !== false && get('app_group') !== false) {
-        run("chown {{app_user}}:{{app_group}} {{deploy_path}}");
+        writeln("Running chown {{app_user}}:{{app_group}} {{release_path}}");
+        run("chown {{app_user}}:{{app_group}} {{release_path}}");
 
     } elseif (get('app_user') !== false) {
-        run("chown {{app_user}} {{deploy_path}}");
+        writeln("Running chown {{app_user}} {{release_path}}");
+        run("chown {{app_user}} {{release_path}}");
 
     } elseif (get('app_group') !== false) {
-        run("chgrp {{app_group}} {{deploy_path}}");
+        writeln("Running chown {{app_group}} {{release_path}}");
+        run("chgrp {{app_group}} {{release_path}}");
     }
 
     // Assign chmod to deploy path
-    run("chmod u+rwx,g+rx  {{deploy_path}}");
+    run("chmod u+rwx,g+rx  {{release_path}}");
+
+    if (get('with_secure_default_permission') == 1) {
+        run("setfacl -d -m g::r-- {{release_path}}");
+    }
 });
 
 
@@ -82,47 +102,8 @@ task('deploy:release:after', function() {
 });
 
 
-task('deploy:release', function () {
+task('deploy:release', function() {
     invoke('deploy:release:preparation');
-
-    $release_list = get('release_list');
-    $current_date = date('Ymd');
-    $new_release  = "release.$current_date.1";
-
-    if (!empty($release_list)) {
-        natsort($release_list);
-        [$_, $date, $sequence] = explode('.', end($release_list));
-        if ($date === $current_date) {
-            $sequence++;
-            $new_release = "release.$current_date.$sequence";
-        }
-    }
-
-    set('release', $new_release);
-    set('release_path', '{{deploy_path}}/{{release}}');
-    run("mkdir -p {{release_path}}");
-
-    // Assign chown to release path
-    if (get('app_user') !== false && get('app_group') !== false) {
-        writeln("Running chown {{app_user}}:{{app_group}} {{release_path}}");
-        run("chown {{app_user}}:{{app_group}} {{release_path}}");
-
-    } elseif (get('app_user') !== false) {
-        writeln("Running chown {{app_user}} {{release_path}}");
-        run("chown {{app_user}} {{release_path}}");
-
-    } elseif (get('app_group') !== false) {
-        writeln("Running chown {{app_group}} {{release_path}}");
-        run("chgrp {{app_group}} {{release_path}}");
-    }
-
-    // Assign chmod to deploy path
-    run("chmod u+rwx,g+rx  {{release_path}}");
-
-    if (get('with_secure_default_permission') == 1) {
-        run("setfacl -d -m g::r-- {{release_path}}");
-    }
-
     invoke('deploy:release:unzip_artifact');
     invoke('deploy:release:load_config');
     invoke('deploy:release:after');
