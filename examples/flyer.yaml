@@ -1,17 +1,11 @@
-# permission:
-#   user: www-data
-#   group: www-data
-#   acl_list:
-#   default_permission:
-#   writable_paths:
-#     - path: storage/logs
-#       by: group
-#       recursive: true
-#     - path: storage/uploads
-#       by: user
-#       recursive: false
-#     - path: storage/some_random_file
-#       by: user
+permission:
+  writable_paths:
+    - path: storage/logs
+      recursive: true
+    - path: storage/uploads
+      recursive: false
+    - path: storage/some_random_file
+      by: user
 
 shared:
   dirs:

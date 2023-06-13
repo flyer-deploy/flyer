@@ -13,10 +13,10 @@ task('deploy:permission:writable_path', function() {
         return;
     }
 
-    $writable_mode = get('WRITABLE_MODE');
+    $writable_mode = get('writable_mode');
 
     foreach ($writable_paths as $writable_path) {
-        $path = get('new_release_path') . '/' .$writable_path['path'];
+        $path = get('release_path') . '/' .$writable_path['path'];
 
         $class = '';
         switch ($writable_mode) {

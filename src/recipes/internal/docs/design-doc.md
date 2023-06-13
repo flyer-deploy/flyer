@@ -31,12 +31,12 @@ If Flyer sees a string with pattern `${[a-zA-Z0-9_]+}` (will be called _substitu
 
     2.2. Run `chmod u+rwx,g+rx` to the directory.
 
-    2.3. If `APP_GROUP` is specified, set [SGID](<https://www.redhat.com/sysadmin/suid-sgid-sticky-bit#:~:text=for%20the%20user.-,group%20%2B%20s%20(pecial),-Commonly%20noted%20as>) (`chmod g+s {{release_dir}}`) of the release directory. Doing so will make newly created files group ownership set to that of the directory group owner, in this case, `APP_GROUP`. This avoids running chown on the entire directory and all subdirectories, which will take a long time on slow machine.
+    2.3. If `APP_GROUP` is specified, set [SGID](<https://www.redhat.com/sysadmin/suid-sgid-sticky-bit#:~:text=for%20the%20user.-,group%20%2B%20s%20(pecial),-Commonly%20noted%20as>) (`chmod g+s {{release_path}}`) of the release directory. Doing so will make newly created files group ownership set to that of the directory group owner, in this case, `APP_GROUP`. This avoids running chown on the entire directory and all subdirectories, which will take a long time on slow machine.
 
 3.  Flyer reads `WITH_SECURE_DEFAULT_PERMISSIONS` environment variable. If set to value '1', and `setfacl` command exists, before unzipping artifact to the release directory, set the ACL:
 
     ```sh
-    setfacl -d -m g::r-- $release_dir
+    setfacl -d -m g::r-- $release_path
     ```
 
     Which **should** make the newly-created files have only read permission for groups (and execute if directory).
