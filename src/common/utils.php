@@ -2,8 +2,6 @@
 
 namespace Deployer;
 
-use Yosymfony\Toml\Toml;
-
 function mandatory($value, $key)
 {
     if (empty($value)) {

@@ -4,7 +4,6 @@ namespace Deployer;
 
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../common/utils.php';
-
 require __DIR__ . '/deploy/permission.php';
 require __DIR__ . '/deploy/symlink.php';
 require __DIR__ . '/deploy/release.php';
@@ -23,11 +22,11 @@ task('deploy:start', function () {
 
 
 task('deploy:prepare', function () {
-    set('app_id', getenv('APP_ID'));
+    set('app_id', mandatory(getenv('APP_ID')));
     set('app_user', getenv('APP_USER'));
     set('app_group', getenv('APP_GROUP'));
-    set('artifact_file', getenv('ARTIFACT_FILE'));
-    set('deploy_path', getenv('DEPLOY_PATH'));
+    set('artifact_file', mandatory(getenv('ARTIFACT_FILE')));
+    set('deploy_path', mandatory(getenv('DEPLOY_PATH')));
     set('shared_path', getenv('SHARED_PATH'));
     set('additional_files_dir', getenv('ADDITIONAL_FILES_DIR'));
     set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));
