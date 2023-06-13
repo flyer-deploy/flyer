@@ -30,15 +30,13 @@ task('deploy:permission:writable_path', function() {
                 throw error("Invalid writable_mode value: $writable_mode");
         }
 
-        $recursive = '';
-        if (isset($writable_path['recursive'])) {
-            if ($writable_path['recursive'] === true) {
-                $recursive = '-R';
-            }
-        }
 
         writeln("Creating writable path $path by $class");
-        run("chmod $recursive $class+w $path");
+
+        $recursive = isset($writable_path['recursive']) ? !!$writable_path['recursive'] : false;
+        $maxdepth = $recursive === false ? '-maxdepth 1' : '';
+        run("find $path $maxdepth -type f -exec chmod g+w {} \;");
+        run("find $path $maxdepth -type d -exec chmod g+wx {} \;");
     }
 });
 
