@@ -32,8 +32,8 @@ task('deploy:permission:writable_path', function () {
 
         $recursive = isset($writable_path['recursive']) ? !!$writable_path['recursive'] : false;
         $maxdepth = $recursive === false ? '-maxdepth 1' : '';
-        run("find $path $maxdepth -type f -exec chmod g+w {} \;");
-        run("find $path $maxdepth -type d -exec chmod g+wx {} \;");
+        run("find $path $maxdepth -type f -exec chmod $class+w {} \;");
+        run("find $path $maxdepth -type d -exec chmod $class+wx {} \;");
     }
 });
 
