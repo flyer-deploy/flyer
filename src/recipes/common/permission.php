@@ -30,7 +30,6 @@ task('deploy:permission:writable_path', function() {
                 throw error("Invalid writable_mode value: $writable_mode");
         }
 
-
         writeln("Creating writable path $path by $class");
 
         $recursive = isset($writable_path['recursive']) ? !!$writable_path['recursive'] : false;

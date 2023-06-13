@@ -23,13 +23,13 @@ task('deploy:start', function() {
 
 
 task('deploy:prepare', function() {
-    set('app_id', getenv('APP_ID'));
+    set('app_id', mandatory(getenv('APP_ID'), 'APP_ID environment variable'));
     set('app_user', getenv('APP_USER'));
     set('app_group', getenv('APP_GROUP'));
     set('writable_mode', getenv('WRITABLE_MODE'));
-    set('artifact_file', getenv('ARTIFACT_FILE'));
-    set('deploy_path', getenv('DEPLOY_PATH'));
-    set('shared_path', getenv('SHARED_PATH'));
+    set('artifact_file', mandatory(getenv('ARTIFACT_FILE'), 'ARTIFACT_FILE environment variable'));
+    set('deploy_path', mandatory(getenv('DEPLOY_PATH'), 'DEPLOY_PATH environment variable'));
+    set('shared_path', getenv('SHARED_PATH') ?? '/var/share');
     set('additional_files_dir', getenv('ADDITIONAL_FILES_DIR'));
     set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));
 
