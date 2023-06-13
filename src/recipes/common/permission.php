@@ -14,6 +14,8 @@ task('deploy:permission:writable_path', function () {
             $recursive = '-R';
         }
 
+        $writable_mode = get('writable_mode');
+
         $class = '';
         switch ($writable_mode) {
             case 'by_user':
