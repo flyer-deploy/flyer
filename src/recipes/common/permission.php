@@ -2,21 +2,17 @@
 
 namespace Deployer;
 
-task('deploy:permission:writable_path', function() {
-    if (isset(get('config')['permission']['writable_paths'])) {
-        $writable_paths = get('config')['permission']['writable_paths'];
+task('deploy:permission:writable_path', function () {
+    $writable_paths = get('config')['permission']['writable_paths'];
 
-    } elseif (isset(get('config')['permission']['writable_paths'])) {
-        $writable_paths = get('config')['permission']['writable_paths'];
-
-    } else {
-        return;
-    }
-
-    $writable_mode = get('writable_mode');
 
     foreach ($writable_paths as $writable_path) {
-        $path = get('release_path') . '/' .$writable_path['path'];
+        $path = get('new_release_path') . '/' .$writable_path['path'];
+        $recursive = '';
+
+        if (isset($writable_path['recursive']) && $writable_path['recursive'] === true) {
+            $recursive = '-R';
+        }
 
         $class = '';
         switch ($writable_mode) {
@@ -27,9 +23,9 @@ task('deploy:permission:writable_path', function() {
                 $class = 'g';
                 break;
             default:
-                throw error("Invalid writable_mode value: $writable_mode");
+                $class = 'ug';
+                break;
         }
-
         writeln("Creating writable path $path by $class");
 
         $recursive = isset($writable_path['recursive']) ? !!$writable_path['recursive'] : false;
@@ -40,5 +36,11 @@ task('deploy:permission:writable_path', function() {
 });
 
 task('deploy:permission', function() {
-    invoke('deploy:permission:writable_path');
+    if (isset(get('config')['permission']['writable_paths'])) {
+        invoke('deploy:permission:writable_path');
+    }
+    
+    if (isset(get('config')['permission']['acl_list'])) {
+        invoke('deploy:permission:acl');
+    }
 });

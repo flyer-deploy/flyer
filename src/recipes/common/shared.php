@@ -75,12 +75,13 @@ task('deploy:shared', function () {
     $config = get('config');
 
     // Get shared path
-    $shared_path = "/var/share/" . get('app_id');
-    if (get('shared_path') != false) {
-        $shared_path = get('shared_path');
-    }
-
-    set('shared_path', $shared_path);
+    set('shared_path', function() {
+        $shared_path = "/var/share/" . get('app_id');
+        if (get('shared_path') != false) {
+            $shared_path = get('shared_path');
+        }
+        return $shared_path;
+    });
 
     if (isset($config['shared']['dirs'])) {
         invoke('deploy:shared:dirs');
