@@ -3,18 +3,17 @@
 namespace Deployer;
 
 task('deploy:release:preparation', function () {
-    // Check if deploy path is a directory
-    writeln("Checking deploy path.");
     $deploy_path = get('deploy_path');
+
+    // Check if deploy path is a directory
     if (file_exists($deploy_path) && !is_dir($deploy_path)) {
         throw(error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory"));
     }
 
     // Create deploy path
-    run("mkdir -p {{deploy_path}}");
-    set('release_list', array_map('basename', glob(get('deploy_path') . '/release.*')));
+    run("mkdir -p {{deploy_path}}/releases");
 
-    // Assign chown to deploy path
+    // Assign owner to deploy path
     if (get('app_user') !== false && get('app_group') !== false) {
         run("chown {{app_user}}:{{app_group}} {{deploy_path}}");
 
@@ -27,36 +26,57 @@ task('deploy:release:preparation', function () {
 
     // Assign chmod to deploy path
     run("chmod u+rwx,g+rx  {{deploy_path}}");
+
+    // Get all releases
+    set('releases_list', array_map('basename', glob($deploy_path . '/releases/release.*')));
+
+    // Get release name
+    set('release_name', function() {
+        $release_list = get('release_list');
+        $current_date = date('Ymd');
+        $new_release  = "release.$current_date.1";
+    
+        if (!empty($release_list)) {
+            natsort($release_list);
+            [$_, $date, $sequence] = explode('.', end($release_list));
+            if ($date === $current_date) {
+                $sequence++;
+                $new_release = "release.$current_date.$sequence";
+            }
+        }
+        return $new_release;
+    });
+
+    // Set release path
+    set('release_path', '{{deploy_path}}/releases/{{release_name}}');
 });
 
-
 task('deploy:release:unzip_artifact', function () {
+    // Create release path
     run("mkdir -p {{release_path}}");
 
+    // Chmod all the item to be added to this directory
     if (get('app_group') !== false) {
-        run("chmod g+s {{release_dir}}");
+        run("chmod g+s {{release_path}}");
     }
 
+    // Idk what this do
     if (get('with_secure_default_permission') === 1) {
         run("setfacl -d -m g::r-- {{release_path}}");
     }
 
-    writeln("Extracting artifact {{artifact_file}} to release {{release_path}}");
+    // Extract artifact to release
     run("unzip -qq {{artifact_file}} -d {{release_path}}");
 });
 
-
 task('deploy:release:load_config', function () {
-
     // Load yaml file from release
+    $config = [];
     $file = get('release_path') . '/flyer.yaml';
     if (file_exists($file)) {
-        writeln("Config file flyer.yaml loaded.");
         $config = yaml_parse_file($file);
-    } else {
-        writeln("Configuration file not found.");
-        $config = [];
     }
+    set('config', $config);
 
     // Load template if specified
     if (isset($config['template']['name'])) {
@@ -70,10 +90,7 @@ task('deploy:release:load_config', function () {
             writeln("Template name $schema invalid");
         }
     }
-
-    set('config', $config);
 });
-
 
 task('deploy:release:after', function () {
     $config = get('config');
@@ -83,27 +100,13 @@ task('deploy:release:after', function () {
     }
 });
 
-
 task('deploy:release', function () {
     invoke('deploy:release:preparation');
-
-    $release_list = get('release_list');
-    $current_date = date('Ymd');
-    $new_release  = "release.$current_date.1";
-
-    if (!empty($release_list)) {
-        natsort($release_list);
-        [$_, $date, $sequence] = explode('.', end($release_list));
-        if ($date === $current_date) {
-            $sequence++;
-            $new_release = "release.$current_date.$sequence";
-        }
-    }
-
-    set('release', $new_release);
-    set('release_path', '{{deploy_path}}/{{release}}');
-
     invoke('deploy:release:unzip_artifact');
     invoke('deploy:release:load_config');
-    invoke('deploy:release:after');
+
+    $config = get('config');
+    if ($config['command_hooks']['post_release'] != "null") {
+        invoke('deploy:release:after');
+    }
 });

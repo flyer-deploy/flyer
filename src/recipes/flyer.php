@@ -5,10 +5,10 @@ namespace Deployer;
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../common/utils.php';
 
-require __DIR__ . '/common/permission.php';
-require __DIR__ . '/common/symlink.php';
-require __DIR__ . '/common/release.php';
-require __DIR__ . '/common/shared.php';
+require __DIR__ . '/deploy/permission.php';
+require __DIR__ . '/deploy/symlink.php';
+require __DIR__ . '/deploy/release.php';
+require __DIR__ . '/deploy/shared.php';
 
 localhost();
 
