@@ -3,18 +3,9 @@
 namespace Deployer;
 
 task('deploy:release:unzip_artifact', function() {
-    if (get('app_group') !== false) {
-        run("chmod g+s {{release_path}}");
-    }
-
-    if (get('with_secure_default_permission') == 1) {
-        run("setfacl -d -m g::r-- {{release_path}}");
-    }
-
     writeln("Extracting artifact {{artifact_file}} to release {{release_path}}");
     run("unzip -qq {{artifact_file}} -d {{release_path}}");
 });
-
 
 task('deploy:release:load_config', function() {
 
@@ -43,7 +34,6 @@ task('deploy:release:load_config', function() {
 
     set('config', $config);
 });
-
 
 task('deploy:release:after', function() {
     $config = get('config');
@@ -98,7 +88,11 @@ task('deploy:release', function() {
     }
 
     // Assign chmod to deploy path
-    run("chmod u+rwx,g+rx  {{deploy_path}}");
+    run("chmod u+rwx,g+rx  {{release_path}}");
+
+    if (get('with_secure_default_permission') == 1) {
+        run("setfacl -d -m g::r-- {{release_path}}");
+    }
 
     invoke('deploy:release:unzip_artifact');
     invoke('deploy:release:load_config');
