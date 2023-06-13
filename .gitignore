@@ -1,6 +1,4 @@
 vendor
-.test
-test*
 examples/*
 !examples/.gitkeep
 !examples/artifact_creator.sh
