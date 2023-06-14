@@ -12,25 +12,27 @@ script_dir=$(dirname "$0")
 
 directory=""
 filename=""
-appname=""
+yaml_file=""
 
 display_usage() {
-    echo "Usage: $0 [-p <directory>] [-z <filename>]"
+    echo "Usage: $0 [-p <directory>] [-z <filename>] [-y <yaml_file>]"
     echo
     echo "Options:"
     echo "-p : Directory to create Laravel project"
     echo "-z : Zip filename"
+    echo "-y : Yaml file"
     echo
     cat <<EOL
 Example usage:
-./artifact_creator.sh -p ./examples/larapel -z ./examples/larapel.zip
+./artifact_creator.sh -p ./examples/larapel -z ./examples/larapel.zip -y /tmp/flyer.yaml
 EOL
 }
 
-while getopts ":p:z:" opt; do
+while getopts ":p:z:y:" opt; do
     case $opt in
     p) directory=$OPTARG ;;
     z) filename=$OPTARG ;;
+    y) yaml_file=$OPTARG ;;
     \?)
         display_usage
         exit 1
@@ -51,7 +53,10 @@ if [ -z "$composer_installed" ]; then
 fi
 
 composer create-project laravel/laravel "$directory"
-cp $script_dir/flyer.yaml $directory
+
+if [ -n "$yaml_file" ]; then
+    cp "$yaml_file" "$directory"
+fi
 
 filename=$(readlink -f $filename)
 cd "$directory" || exit

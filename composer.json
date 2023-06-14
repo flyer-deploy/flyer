@@ -1,6 +1,12 @@
 {
-    "require": {
-        "deployer/deployer": "^7.3",
-        "yosymfony/toml": "^1.0"
-    }
+  "require": {
+    "deployer/deployer": "^7.3",
+    "yosymfony/toml": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.2"
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
 }
