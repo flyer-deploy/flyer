@@ -2,12 +2,12 @@
 
 namespace Deployer;
 
-task('deploy:permission:writable_path', function() {
+task('deploy:permission:writable_path', function () {
     $writable_paths = get('config')['permission']['writable_paths'];
 
 
     foreach ($writable_paths as $writable_path) {
-        $path = get('new_release_path') . '/' .$writable_path['path'];
+        $path = get('new_release_path') . '/' . $writable_path['path'];
 
         $writable_mode = get('writable_mode');
 
@@ -32,7 +32,7 @@ task('deploy:permission:writable_path', function() {
     }
 });
 
-task('deploy:permission', function() {
+task('deploy:permission', function () {
     if (isset(get('config')['permission']['writable_paths'])) {
         invoke('deploy:permission:writable_path');
     }
