@@ -21,12 +21,18 @@ task('deploy:symlink:after', function () {
 
 
 task('deploy:symlink', function () {
-    invoke('deploy:symlink:before');
+    $config = get('config');
+    
+    if ($config['command_hooks']['pre_symlink'] != "null") {
+        invoke('deploy:symlink:before');
+    }
     
     // Symlink release to current
     writeln("Creating symbolic link {{release_path}} to {{current_path}}");
     run("ln -sfn {{release_path}} {{current_path}}");
 
-    invoke('deploy:symlink:after');
+    if ($config['command_hooks']['post_symlink'] != "null") {
+        invoke('deploy:symlink:after');
+    }
 });
 
