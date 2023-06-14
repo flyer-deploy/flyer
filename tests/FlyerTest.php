@@ -76,26 +76,34 @@ final class FlyerTest extends TestCase
 
         foreach ($configs as $conf) {
             $artifact = generate_artifact($conf['config']);
-            foreach ($conf['env'] as $i => $env) {
-                $vars_parsed_env = parse_vars($env, [
+            foreach ($conf['env'] as $env) {
+                echo "------------------ ## ------------------" . PHP_EOL;
+
+                $env_value = $env['value'];
+
+                $vars_parsed_env = parse_vars($env_value, [
                     'ARTIFACT_FILE' => $artifact[3],
                     'DEPLOY_PATH' => $artifact[1],
                 ]);
                 $exports = generate_env_exports($vars_parsed_env);
                 $shell = "$exports $dep_bin -f ./src/recipes/flyer.php deploy -vvv";
+
+                echo "Running command: $shell" . PHP_EOL . PHP_EOL;
+                echo "Config:" . PHP_EOL . PHP_EOL;
+                echo file_get_contents($artifact[2]) . PHP_EOL . PHP_EOL;
+
                 $output = [];
                 $ret = -1;
                 $output_with_status = exec($shell, $output, $ret);
                 $out = parse_deployer_output($output);
 
-                $expected = $conf['expected'][$i];
-
+                $expected = $env['expected'];
                 foreach ($expected as $key => $val) {
                     if ($key == 'exception') {
-                        $dump_file = system('mktemp');
-                        $dump_file_handle = fopen($dump_file, 'aw');
-                        echo 'dump file: ' . $dump_file . PHP_EOL;
-                        $out->dump(STDERR);
+                        // $dump_file = system('mktemp');
+                        // $dump_file_handle = fopen($dump_file, 'aw');
+                        // echo 'dump file: ' . $dump_file . PHP_EOL;
+                        // $out->dump(STDERR);
                         $exception = $out->get_last_exception();
                         $this->assertEquals($exception['message'], $val['message']);
                         $this->assertEquals($exception['class'], $val['class']);
