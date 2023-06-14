@@ -7,7 +7,7 @@ task('deploy:release:preparation', function () {
 
     // Check if deploy path is a directory
     if (file_exists($deploy_path) && !is_dir($deploy_path)) {
-        throw(error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory"));
+        throw error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
     }
 
     // Create deploy path
