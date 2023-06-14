@@ -124,6 +124,7 @@ class DeployerOutput
                         $previous_line_state == DeployerLogTypes::RUN_IN_HOST_EXCEPTION_STACK_TRACE)
                 ) {
                     $type = DeployerLogTypes::RUN_IN_HOST_EXCEPTION_STACK_TRACE;
+                    $previous_line_state = $type;
                     $log_data['exception']['traces'][] = $more_matches[1];
                     $log->setData($log_data);
                 } else {
