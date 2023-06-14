@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/utils/DeployerOutput.php';
+require __DIR__ . '/src/DeployerOutput.php';
 
 use DeployerOutput;
 use PHPUnit\Framework\TestCase;
@@ -70,21 +70,23 @@ function stderr(string $message)
     fwrite(STDERR, $message);
 }
 
-function test_case_asserter(mixed $matcher, string $subject, TestCase $testCase)
-{
-    $matcher_val = '';
-    if (is_array($matcher) && isset($matcher['regex_match'])) {
-        $matcher_val = $matcher['regex_match'];
-        $testCase->assertMatchesRegularExpression('/' . $matcher_val . '/', $subject);
-    } else {
-        $testCase->assertEquals($matcher, $subject);
-    }
-}
 
-// Blackbox testing by running the dep commands and see the output.
+// Blackbox testing by running the dep commands and parse the output.
 
 final class FlyerTest extends TestCase
 {
+
+    private function asserter(mixed $matcher, mixed $subject)
+    {
+        $matcher_val = '';
+        if (is_array($matcher) && isset($matcher['regex_match'])) {
+            $matcher_val = $matcher['regex_match'];
+            $this->assertMatchesRegularExpression('/' . $matcher_val . '/', $subject);
+        } else {
+            $this->assertEquals($matcher, $subject);
+        }
+    }
+
     public function testStuffs()
     {
         // some validations
@@ -108,7 +110,6 @@ final class FlyerTest extends TestCase
     {
         $configs = $fixtures['configs'];
         $dep_bin = $fixtures['dep_bin'];
-
 
         // composer-create once
         $artifact_dir = system('mktemp -d');
@@ -137,15 +138,18 @@ final class FlyerTest extends TestCase
                 $ret = -1;
                 exec($shell, $output, $ret);
                 $out = parse_deployer_output($output);
+                $out->dump(STDERR);
+                // print_r($out->get_logs());
 
                 $expected = $env['expected'];
                 foreach ($expected as $key => $val) {
-                    if ($key == 'exception') {
-                        $out->dump(STDERR);
-                        $deployer_exception = $out->get_last_exception();
+                    if (in_array($key, ['exception', 'error'])) {
+                        $subject = $key == 'exception' ?
+                            $out->get_last_exception()
+                            : $out->get_last_error();
                         $expected_exception = $val;
                         foreach ($expected_exception as $k => $v) {
-                            test_case_asserter($v, $deployer_exception[$k], $this);
+                            $this->asserter($v, $subject[$k]);
                         }
                     } elseif ($key == 'result') {
                         $result_type = $val['type'];
@@ -153,9 +157,11 @@ final class FlyerTest extends TestCase
                         switch ($result_type) {
                             case 'task_done_successfully':
                                 $last_log_line = $out->last_log();
-                            // if (!$last_log_line || ($last_log_line && $last_log_line->type !== DeployerLogTypes:: )) {
+                                $this->asserter($last_log_line->type, DeployerLogTypes::TASK_DONE);
+                                $this->asserter($last_log_line->data['task_name'], $params['task_name']);
 
-                            // }
+                                // there should be no exception or errors
+                                $this->asserter($out->is_error(), false);
                         }
                     }
                 }

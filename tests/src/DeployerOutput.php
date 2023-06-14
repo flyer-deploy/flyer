@@ -6,6 +6,7 @@ enum DeployerLogTypes
     case TASK_DONE;
     case RUN_IN_HOST;
     case RUN_IN_HOST_EXCEPTION_OCCURRED;
+    case RUN_IN_HOST_ERROR_OCCURRED;
     case RUN_IN_HOST_EXCEPTION_STACK_TRACE;
     case TASK_FAILED;
 }
@@ -83,16 +84,31 @@ class DeployerOutput
                 $what_is_run = $matches[1];
                 $more_matches = [];
                 if (preg_match('/^ (.+?)  in (.+\.php) on line (\d+):$/', $what_is_run, $more_matches)) {
-                    $type = DeployerLogTypes::RUN_IN_HOST_EXCEPTION_OCCURRED;
-                    $log_data['exception'] = [
-                        'class' => $more_matches[1],
-                        'file' => $more_matches[2],
-                        'line' => $more_matches[3],
-                        'message' => null,
-                        'stack_traces' => [],
-                    ];
+                    $class = $more_matches[1];
+                    // general error, probably error from command
+                    if ($class === 'error') {
+                        $type = DeployerLogTypes::RUN_IN_HOST_ERROR_OCCURRED;
+                        $log_data['error'] = [
+                            'exit_code' => null,
+                            'kind' => null
+                        ];
+                    } else {
+                        // if not, then it's an exception
+                        $type = DeployerLogTypes::RUN_IN_HOST_EXCEPTION_OCCURRED;
+                        $log_data['exception'] = [
+                            'class' => $more_matches[1],
+                            'file' => $more_matches[2],
+                            'line' => $more_matches[3],
+                            'message' => null,
+                            'stack_traces' => [],
+                        ];
+                    }
                     $log = new DeployerLog($type, $line, $log_data);
-                } elseif (empty(trim($line)) && previous_line_state == DeployerLogTypes::RUN_IN_HOST_EXCEPTION_OCCURRED) {
+                } elseif (preg_match('/exit code (\d+) \((.+)\)/', $what_is_run, $more_matches)) {
+                    $log_data['error']['exit_code'] = $more_matches[1];
+                    $log_data['error']['kind'] = $more_matches[2];
+                    $log->setData($log_data);
+                } elseif (empty(trim($line)) && $previous_line_state == DeployerLogTypes::RUN_IN_HOST_EXCEPTION_OCCURRED) {
                     // this is an empty line after the exception class or message, skip it
                 } elseif (preg_match('/^  (.+)$/', $what_is_run, $more_matches) && $previous_line_state == DeployerLogTypes::RUN_IN_HOST_EXCEPTION_OCCURRED) {
                     // the exception message
@@ -100,8 +116,8 @@ class DeployerOutput
                     $log->setData($log_data);
                 } elseif (
                     preg_match('/^(#\d+ .+)$/', $what_is_run, $more_matches) &&
-                        ($previous_line_state == DeployerLogTypes::RUN_IN_HOST_EXCEPTION_OCCURRED ||
-                            $previous_line_state == DeployerLogTypes::RUN_IN_HOST_EXCEPTION_STACK_TRACE)
+                    ($previous_line_state == DeployerLogTypes::RUN_IN_HOST_EXCEPTION_OCCURRED ||
+                        $previous_line_state == DeployerLogTypes::RUN_IN_HOST_EXCEPTION_STACK_TRACE)
                 ) {
                     $type = DeployerLogTypes::RUN_IN_HOST_EXCEPTION_STACK_TRACE;
                     $log_data['exception']['traces'][] = $more_matches[1];
@@ -117,7 +133,7 @@ class DeployerOutput
                     $out->append(new DeployerLog($type, $line));
                 }
                 $previous_line_state = $type;
-            } elseif (preg_match('/^ERROR: Task .+? failed!$/', $line)) {
+            } elseif (preg_match('/ERROR: Task (.+?) failed!/', $line)) {
                 if ($log !== null) {
                     $out->append($log);
                     $log = null;
@@ -134,14 +150,24 @@ class DeployerOutput
         return $this;
     }
 
+    public function parse2()
+    {
+
+    }
+
     public function append(DeployerLog $log)
     {
         $this->logs[] = $log;
     }
 
+    public function get_logs()
+    {
+        return $this->logs;
+    }
+
     public function last_log()
     {
-        return $this->logs[count($this->logs)-1];
+        return $this->logs[count($this->logs) - 1];
     }
 
     /**
@@ -159,6 +185,16 @@ class DeployerOutput
             $log = $this->logs[$i];
             if ($log->type === DeployerLogTypes::RUN_IN_HOST_EXCEPTION_OCCURRED) {
                 return $log->data['exception'];
+            }
+        }
+    }
+
+    public function get_last_error()
+    {
+        for ($i = count($this->logs); $i > 0; $i--) {
+            $log = $this->logs[$i];
+            if ($log->type === DeployerLogTypes::RUN_IN_HOST_ERROR_OCCURRED) {
+                return $log->data['error'];
             }
         }
     }
