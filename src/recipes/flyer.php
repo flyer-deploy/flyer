@@ -12,16 +12,7 @@ require __DIR__ . '/deploy/shared.php';
 localhost();
 
 
-task('deploy:start', function() {
-    $config = get('config');
-
-    if (isset($config['command_hooks']['start'])) {
-        run($config['command_hooks']['start']);
-    }
-});
-
-
-task('deploy:prepare', function() {
+task('deploy:prepare', function () {
     set('app_id', mandatory(mandatory(getenv('APP_ID'), 'APP_ID environment variable')));
     set('app_user', getenv('APP_USER'));
     set('app_group', getenv('APP_GROUP'));
@@ -40,12 +31,12 @@ task('deploy:prepare', function() {
 });
 
 
-task('deploy:additional', function() {
+task('deploy:additional', function () {
     $config = get('config');
 
     if (isset($config['additional']['files'])) {
         if (get('additional_files_dir') === false) {
-            throw error("ADDITIONAL_FILES_DIR is not specified while the configuration flyer.yaml did.");
+            throw error("ADDITIONAL_FILES_DIR is not specified while flyer.yaml specifies `additional_files`.");
         }
 
         foreach($config['additional']['files'] as $file) {
@@ -55,7 +46,17 @@ task('deploy:additional', function() {
     }
 });
 
-task('deploy', function() {
+
+task('deploy:start', function () {
+    $config = get('config');
+
+    if (isset($config['command_hooks']['start'])) {
+        run($config['command_hooks']['start']);
+    }
+});
+
+
+task('deploy', function () {
     invoke('deploy:prepare');
     invoke('deploy:release');
     invoke('deploy:permission');
@@ -67,7 +68,7 @@ task('deploy', function() {
 });
 
 
-task('cleanup', function() {
+task('cleanup', function () {
     $release_list = get('release_list');
     $new_release = get('new_release');
 

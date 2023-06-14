@@ -28,14 +28,14 @@ task('deploy:release:preparation', function () {
     run("chmod u+rwx,g+rx  {{deploy_path}}");
 
     // Get all releases
-    set('releases_list', array_map('basename', glob($deploy_path . '/releases/release.*')));
+    set('releases_list', array_map('basename', glob($deploy_path . '/release.*')));
 
     // Get release name
-    set('release_name', function() {
+    set('release_name', function () {
         $release_list = get('release_list');
         $current_date = date('Ymd');
         $new_release  = "release.$current_date.1";
-    
+
         if (!empty($release_list)) {
             natsort($release_list);
             [$_, $date, $sequence] = explode('.', end($release_list));
@@ -48,7 +48,7 @@ task('deploy:release:preparation', function () {
     });
 
     // Set release path
-    set('release_path', '{{deploy_path}}/releases/{{release_name}}');
+    set('release_path', '{{deploy_path}}/{{release_name}}');
 });
 
 task('deploy:release:unzip_artifact', function () {
@@ -71,12 +71,7 @@ task('deploy:release:unzip_artifact', function () {
 
 task('deploy:release:load_config', function () {
     // Load yaml file from release
-    $config = [];
-    $file = get('release_path') . '/flyer.yaml';
-    if (file_exists($file)) {
-        $config = yaml_parse_file($file);
-    }
-    set('config', $config);
+    set('config', yaml_parse_file(get('release_path') . '/flyer.yaml') ?? []);
 
     // Load template if specified
     if (isset($config['template']['name'])) {
