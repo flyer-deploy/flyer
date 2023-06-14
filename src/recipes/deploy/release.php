@@ -18,7 +18,7 @@ task('deploy:release:preparation', function () {
 
     // Get release name
     set('release_name', function () {
-        $release_list = get('release_list');
+        $release_list = get('releases_list');
         $current_date = date('Ymd');
         $new_release  = "release.$current_date.1";
 
@@ -73,6 +73,8 @@ task('deploy:release:load_config', function () {
     // Load yaml file from release
     set('config', yaml_parse_file(get('release_path') . '/flyer.yaml') ?? []);
 
+    $config = get('config');
+
     // Load template if specified
     if (isset($config['template']['name'])) {
         $schema = $config['template']['name'];
@@ -101,7 +103,10 @@ task('deploy:release', function () {
     invoke('deploy:release:load_config');
 
     $config = get('config');
-    if ($config['command_hooks']['post_release'] != "null") {
+    if (
+        isset($config['command_hooks']['post_release']) &&
+        $config['command_hooks']['post_release'] != "null"
+    ) {
         invoke('deploy:release:after');
     }
 });

@@ -36,7 +36,7 @@ task('deploy:additional', function () {
 
     if (isset($config['additional']['files'])) {
         if (get('additional_files_dir') === false) {
-            throw error("ADDITIONAL_FILES_DIR is not specified while flyer.yaml specifies `additional_files`.");
+            throw error("ADDITIONAL_FILES_DIR is not specified while flyer.yaml specifies `additional.files`.");
         }
 
         foreach($config['additional']['files'] as $file) {
