@@ -7,6 +7,6 @@
     "phpunit/phpunit": "^10.2"
   },
   "scripts": {
-    "test": "phpunit"
+    "test": "DEP_BIN=$(which dep) phpunit tests/FlyerTest.php"
   }
 }
