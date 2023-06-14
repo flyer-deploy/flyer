@@ -2,17 +2,12 @@
 
 namespace Deployer;
 
-task('deploy:permission:writable_path', function () {
+task('deploy:permission:writable_path', function() {
     $writable_paths = get('config')['permission']['writable_paths'];
 
 
     foreach ($writable_paths as $writable_path) {
         $path = get('new_release_path') . '/' .$writable_path['path'];
-        $recursive = '';
-
-        if (isset($writable_path['recursive']) && $writable_path['recursive'] === true) {
-            $recursive = '-R';
-        }
 
         $writable_mode = get('writable_mode');
 
@@ -41,7 +36,7 @@ task('deploy:permission', function() {
     if (isset(get('config')['permission']['writable_paths'])) {
         invoke('deploy:permission:writable_path');
     }
-    
+
     if (isset(get('config')['permission']['acl_list'])) {
         invoke('deploy:permission:acl');
     }
