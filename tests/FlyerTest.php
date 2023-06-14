@@ -25,7 +25,7 @@ function generate_env_exports(array $env)
 {
     $str = '';
     foreach ($env as $k => $v) {
-        $str .= "export $k=$v\n";
+        $str .= "$k=$v ";
     }
     return $str;
 }
@@ -44,6 +44,11 @@ function parse_vars(array $env, array $vars)
         }
     }
     return $parsed;
+}
+
+function stderr(string $message)
+{
+    fwrite(STDERR, $message);
 }
 
 // Blackbox testing by running the dep commands and see the output.
@@ -77,7 +82,7 @@ final class FlyerTest extends TestCase
         foreach ($configs as $conf) {
             $artifact = generate_artifact($conf['config']);
             foreach ($conf['env'] as $env) {
-                echo "------------------ ## ------------------" . PHP_EOL;
+                stderr(PHP_EOL . "------------------ ## ------------------" . PHP_EOL);
 
                 $env_value = $env['value'];
 
@@ -88,9 +93,9 @@ final class FlyerTest extends TestCase
                 $exports = generate_env_exports($vars_parsed_env);
                 $shell = "$exports $dep_bin -f ./src/recipes/flyer.php deploy -vvv";
 
-                echo "Running command: $shell" . PHP_EOL . PHP_EOL;
-                echo "Config:" . PHP_EOL . PHP_EOL;
-                echo file_get_contents($artifact[2]) . PHP_EOL . PHP_EOL;
+                stderr("Running command: $shell" . PHP_EOL . PHP_EOL);
+                stderr("Config:" . PHP_EOL . PHP_EOL);
+                stderr(file_get_contents($artifact[2]) . PHP_EOL . PHP_EOL);
 
                 $output = [];
                 $ret = -1;
@@ -98,12 +103,13 @@ final class FlyerTest extends TestCase
                 $out = parse_deployer_output($output);
 
                 $expected = $env['expected'];
+                $exception = $out->get_last_exception();
                 foreach ($expected as $key => $val) {
                     if ($key == 'exception') {
-                        // $dump_file = system('mktemp');
-                        // $dump_file_handle = fopen($dump_file, 'aw');
-                        // echo 'dump file: ' . $dump_file . PHP_EOL;
-                        // $out->dump(STDERR);
+                        $dump_file = system('mktemp');
+                        $dump_file_handle = fopen($dump_file, 'aw');
+                        stderr('dump file: ' . $dump_file . PHP_EOL);
+                        $out->dump(STDERR);
                         $exception = $out->get_last_exception();
                         $this->assertEquals($exception['message'], $val['message']);
                         $this->assertEquals($exception['class'], $val['class']);

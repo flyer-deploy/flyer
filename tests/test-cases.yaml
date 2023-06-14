@@ -3,23 +3,23 @@
     - value: []
       expected:
         exception:
-        class: Deployer\Exception\ConfigurationException
-        message: Please specify APP_ID environment variable
+          class: Deployer\Exception\ConfigurationException
+          message: Please specify APP_ID environment variable
 
     - value:
         APP_ID: app_id
       expected:
         exception:
-        class: Deployer\Exception\ConfigurationException
-        message: Please specify ARTIFACT_FILE environment variable
+          class: Deployer\Exception\ConfigurationException
+          message: Please specify ARTIFACT_FILE environment variable
 
     - value:
         APP_ID: app_id
         ARTIFACT_FILE: ${ARTIFACT_FILE}
       expected:
         exception:
-        class: Deployer\Exception\ConfigurationException
-        message: Please specify DEPLOY_PATH environment variable
+          class: Deployer\Exception\ConfigurationException
+          message: Please specify DEPLOY_PATH environment variable
 
     - value:
         APP_ID: app_id
@@ -52,6 +52,6 @@
         DEPLOY_PATH: ${DEPLOY_PATH}
       expected:
         exception:
-        class: Deployer\Exception\ConfigurationException
-        message: >-
-          ADDITIONAL_FILES_DIR is not specified while the configuration flyer.yaml did.
+          class: Deployer\Exception\ConfiguraationException
+          message: >-
+            ADDITIONAL_FILES_DIR is not specified while the configuration flyer.yaml adid.
