@@ -103,8 +103,12 @@ class DeployerOutput
                             'stack_traces' => [],
                         ];
                     }
+                    $previous_line_state = $type;
                     $log = new DeployerLog($type, $line, $log_data);
-                } elseif (preg_match('/exit code (\d+) \((.+)\)/', $what_is_run, $more_matches)) {
+                } elseif (
+                    preg_match('/exit code (\d+) \((.+)\)/', $what_is_run, $more_matches)
+                    && $previous_line_state == DeployerLogTypes::RUN_IN_HOST_ERROR_OCCURRED
+                ) {
                     $log_data['error']['exit_code'] = $more_matches[1];
                     $log_data['error']['kind'] = $more_matches[2];
                     $log->setData($log_data);
