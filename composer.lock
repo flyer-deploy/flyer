@@ -36,6 +36,11 @@
             ],
             "description": "Deployment Tool",
             "homepage": "https://deployer.org",
+            "support": {
+                "docs": "https://deployer.org/docs",
+                "issues": "https://github.com/deployphp/deployer/issues",
+                "source": "https://github.com/deployphp/deployer"
+            },
             "funding": [
                 {
                     "url": "https://github.com/sponsors/antonmedv",
@@ -92,6 +97,10 @@
                 "lexer",
                 "parser"
             ],
+            "support": {
+                "issues": "https://github.com/yosymfony/parser-utils/issues",
+                "source": "https://github.com/yosymfony/parser-utils/tree/master"
+            },
             "time": "2018-06-29T15:31:11+00:00"
         },
         {
@@ -144,6 +153,10 @@
                 "parser",
                 "toml"
             ],
+            "support": {
+                "issues": "https://github.com/yosymfony/toml/issues",
+                "source": "https://github.com/yosymfony/toml/tree/master"
+            },
             "time": "2018-08-08T15:08:14+00:00"
         }
     ],

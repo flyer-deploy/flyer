@@ -39,7 +39,7 @@ function parse_vars(array $env, array $vars)
 {
     $parsed = $env;
     foreach ($env as $k => $v) {
-        if ($k == 'ARTIFACT_FILE' || $k == 'DEPLOY_PATH') {
+        if (($k == 'ARTIFACT_FILE' || $k == 'DEPLOY_PATH') && empty($v)) {
             $parsed[$k] = $vars[$k];
         }
     }
@@ -49,6 +49,17 @@ function parse_vars(array $env, array $vars)
 function stderr(string $message)
 {
     fwrite(STDERR, $message);
+}
+
+function test_case_asserter(mixed $matcher, string $subject, TestCase $testCase)
+{
+    $matcher_val = '';
+    if (is_array($matcher) && isset($matcher['regex_match'])) {
+        $matcher_val = $matcher['regex_match'];
+        $testCase->assertMatchesRegularExpression('/' . $matcher_val . '/', $subject);
+    } else {
+        $testCase->assertEquals($matcher, $subject);
+    }
 }
 
 // Blackbox testing by running the dep commands and see the output.
@@ -99,26 +110,27 @@ final class FlyerTest extends TestCase
 
                 $output = [];
                 $ret = -1;
-                $output_with_status = exec($shell, $output, $ret);
+                exec($shell, $output, $ret);
                 $out = parse_deployer_output($output);
 
                 $expected = $env['expected'];
-                $exception = $out->get_last_exception();
                 foreach ($expected as $key => $val) {
                     if ($key == 'exception') {
                         $out->dump(STDERR);
-                        $exception = $out->get_last_exception();
-                        $this->assertEquals($exception['message'], $val['message']);
-                        $this->assertEquals($exception['class'], $val['class']);
+                        $deployer_exception = $out->get_last_exception();
+                        $expected_exception = $val;
+                        foreach ($expected_exception as $k => $v) {
+                            test_case_asserter($v, $deployer_exception[$k], $this);
+                        }
                     } elseif ($key == 'result') {
                         $result_type = $val['type'];
                         $params = $val['params'];
                         switch ($result_type) {
                             case 'task_done_successfully':
                                 $last_log_line = $out->last_log();
-                                // if (!$last_log_line || ($last_log_line && $last_log_line->type !== DeployerLogTypes::)) {
+                            // if (!$last_log_line || ($last_log_line && $last_log_line->type !== DeployerLogTypes:: )) {
 
-                                // }
+                            // }
                         }
                     }
                 }
