@@ -1,0 +1,44 @@
+- config: []
+  env:
+    - []
+    - APP_ID: app_id
+    - APP_ID: app_id
+      ARTIFACT_FILE: ${ARTIFACT_FILE}
+    - APP_ID: app_id
+      ARTIFACT_FILE: ${ARTIFACT_FILE}
+      DEPLOY_PATH: ${DEPLOY_PATH}
+  expected:
+    - exception:
+        class: Deployer\Exception\ConfigurationException
+        message: Please specify APP_ID environment variable
+    - exception:
+        class: Deployer\Exception\ConfigurationException
+        message: Please specify ARTIFACT_FILE environment variable
+    - exception:
+        class: Deployer\Exception\ConfigurationException
+        message: Please specify DEPLOY_PATH environment variable
+    - result:
+        type: task_done_successfully
+        params:
+          task_name: deploy
+
+- config:
+    additional_files:
+      - .env
+  env:
+    - APP_ID: app_id
+      ARTIFACT_FILE: ${ARTIFACT_FILE}
+      DEPLOY_PATH: ${DEPLOY_PATH}
+      ADDITIONAL_FILES_DIR: /tmp
+    - APP_ID: app_id
+      ARTIFACT_FILE: ${ARTIFACT_FILE}
+      DEPLOY_PATH: ${DEPLOY_PATH}
+  expected:
+    - result:
+        type: task_done_successfully
+        params:
+          task_name: deploy
+    - exception:
+        class: Deployer\Exception\ConfigurationException
+        message: >-
+          ADDITIONAL_FILES_DIR is not specified while the configuration flyer.yaml did.
