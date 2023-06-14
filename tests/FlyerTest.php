@@ -8,15 +8,29 @@ use DeployerOutput;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Depends;
 
-function generate_artifact(array $config)
+function generate_artifact(array $config = [], bool $with_composer_create_project = false, string $directory = '')
 {
     $tmp = system('mktemp -d');
-    $artifact_dir = $tmp . '/artifact';
+    $artifact_dir = !empty($directory) ? $directory : $tmp . '/artifact';
     system("mkdir -p $artifact_dir");
-    yaml_emit_file($tmp . '/flyer.yaml', $config);
+
+    $yaml_created = false;
+    if (!empty($config)) {
+        yaml_emit_file($tmp . '/flyer.yaml', $config);
+        $yaml_created = true;
+    }
+
     $script_file = "./examples/artifact_creator.sh";
     $script_file = system("readlink -f $script_file");
-    system("$script_file -p $artifact_dir -z $tmp/artifact.zip -y $tmp/flyer.yaml > /dev/null 2>&1");
+    $cmd = <<<CMD
+$script_file \
+    -p $artifact_dir \
+    -z $tmp/artifact.zip \
+    ${$yaml_created == true ? '-y $tmp/flyer.yaml' : ''} \
+    ${$with_composer_create_project === true ? '-c' : ''} \
+    > /dev/null 2>&1
+CMD;
+    system($cmd);
     system("mkdir -p $tmp/deploy");
     return [$tmp, "$tmp/deploy", "$tmp/flyer.yaml", "$tmp/artifact.zip"];
 }
@@ -90,8 +104,13 @@ final class FlyerTest extends TestCase
         $configs = $fixtures['configs'];
         $dep_bin = $fixtures['dep_bin'];
 
+
+        // composer-create once
+        $artifact_dir = system('mktemp -d');
+        $artifact = generate_artifact([], true, $artifact_dir);
+
         foreach ($configs as $conf) {
-            $artifact = generate_artifact($conf['config']);
+            $artifact = generate_artifact($conf['config'], false, $artifact_dir);
             foreach ($conf['env'] as $env) {
                 stderr(PHP_EOL . "------------------ ## ------------------" . PHP_EOL);
 
