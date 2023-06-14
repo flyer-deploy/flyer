@@ -61,6 +61,7 @@ task('deploy', function () {
     invoke('deploy:additional');
     invoke('deploy:shared'); 
     invoke('deploy:symlink');
+    invoke('deploy:start');
     invoke('cleanup');
 });
 
