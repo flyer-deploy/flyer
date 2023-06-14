@@ -10,29 +10,34 @@ use PHPUnit\Framework\Attributes\Depends;
 
 function generate_artifact(array $config = [], bool $with_composer_create_project = false, string $directory = '')
 {
-    $tmp = system('mktemp -d');
-    $artifact_dir = !empty($directory) ? $directory : $tmp . '/artifact';
+    $dir = !empty($directory) ? $directory : system('mktemp -d');
+    $artifact_dir = $dir . '/artifact';
     system("mkdir -p $artifact_dir");
 
     $yaml_created = false;
     if (!empty($config)) {
-        yaml_emit_file($tmp . '/flyer.yaml', $config);
+        yaml_emit_file($dir . '/flyer.yaml', $config);
         $yaml_created = true;
     }
 
     $script_file = "./examples/artifact_creator.sh";
     $script_file = system("readlink -f $script_file");
-    $cmd = <<<CMD
-$script_file \
-    -p $artifact_dir \
-    -z $tmp/artifact.zip \
-    ${$yaml_created == true ? '-y $tmp/flyer.yaml' : ''} \
-    ${$with_composer_create_project === true ? '-c' : ''} \
-    > /dev/null 2>&1
-CMD;
-    system($cmd);
-    system("mkdir -p $tmp/deploy");
-    return [$tmp, "$tmp/deploy", "$tmp/flyer.yaml", "$tmp/artifact.zip"];
+    $cmd = [
+        $script_file,
+        "-p $artifact_dir",
+        "-z $dir/artifact.zip",
+        $yaml_created == true ? "-y $dir/flyer.yaml" : '',
+        $with_composer_create_project == true ? '-c 1' : '',
+        '> /dev/null 2>&1'
+    ];
+    system(implode(' ', $cmd));
+    system("mkdir -p $dir/deploy");
+    return [
+        'root' => $dir,
+        'deploy' => "$dir/deploy",
+        'config' => "$dir/flyer.yaml",
+        'zip' => "$dir/artifact.zip"
+    ];
 }
 
 function generate_env_exports(array $env)
@@ -111,21 +116,22 @@ final class FlyerTest extends TestCase
 
         foreach ($configs as $conf) {
             $artifact = generate_artifact($conf['config'], false, $artifact_dir);
+
             foreach ($conf['env'] as $env) {
                 stderr(PHP_EOL . "------------------ ## ------------------" . PHP_EOL);
 
                 $env_value = $env['value'];
 
                 $vars_parsed_env = parse_vars($env_value, [
-                    'ARTIFACT_FILE' => $artifact[3],
-                    'DEPLOY_PATH' => $artifact[1],
+                    'ARTIFACT_FILE' => $artifact['zip'],
+                    'DEPLOY_PATH' => $artifact['deploy'],
                 ]);
                 $exports = generate_env_exports($vars_parsed_env);
                 $shell = "$exports $dep_bin -f ./src/recipes/flyer.php deploy -vvv";
 
                 stderr("Running command: $shell" . PHP_EOL . PHP_EOL);
                 stderr("Config:" . PHP_EOL . PHP_EOL);
-                stderr(file_get_contents($artifact[2]) . PHP_EOL . PHP_EOL);
+                stderr(file_get_contents($artifact['config']) . PHP_EOL . PHP_EOL);
 
                 $output = [];
                 $ret = -1;
