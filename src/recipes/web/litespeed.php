@@ -22,17 +22,19 @@ set('web_litespeed_blocked_files', $blocked_files);
 task('deploy:release:after', function () {
     $config = get('config');
     $release_path = get('release_path');
+
     $litespeed_path = get('web_litespeed_path');
     $litespeed_context_dir = get('web_litespeed_context_dir');
-    $litespeed_webroot = get('web_litespeed_webroot');
-    $litespeed_extra_headers = get('web_litespeed_extra_headers');
-    $litespeed_blocked_files = get('web_litespeed_blocked_files');
+
+    $webroot = get('web_litespeed_webroot');
+    $extra_headers = get('web_litespeed_extra_headers');
+    $blocked_files = get('web_litespeed_blocked_files');
 
     run('mkdir -p $litespeed_context_dir');
 
     $context = <<<EOD
-    context $litespeed_context_dir {
-        location $release_path/$litespeed_webroot
+    context $litespeed_path {
+        location $release_path/$webroot
         allowBrowse 1
         rewrite {
           enable 1
@@ -40,20 +42,24 @@ task('deploy:release:after', function () {
         addDefaultCharset off
         phpIniOverride {}
         extraHeaders <<<END_rules
-        $litespeed_extra_headers
+        $extra_headers
         END_rules
     }
     EOD;
 
-    foreach ($litespeed_blocked_files as $file) {
+    foreach ($blocked_files as $file) {
         $context .= "\n" . <<<EOD
         context $litespeed_path/$file {
             allowBrowse 0
         }
         EOD;
     }
+
+    $file = fopen($litespeed_path);
+    fwrite($file, $context);
+    fclose($file);
 });
 
-task('deploy:symlink:after', function () {
+// task('deploy:symlink:after', function () {
 
-});
+// });
