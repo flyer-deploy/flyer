@@ -10,6 +10,9 @@ task('deploy:release:preparation', function() {
         throw error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
     }
 
+    run("mkdir -p {{deploy_path}}");
+    set('release_list', array_map('basename', glob(get('deploy_path') . '/release.*')));
+
     $release_list = get('release_list');
     $current_date = date('Ymd');
     $new_release  = "release.$current_date.1";
