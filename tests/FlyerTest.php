@@ -106,9 +106,6 @@ final class FlyerTest extends TestCase
                 $exception = $out->get_last_exception();
                 foreach ($expected as $key => $val) {
                     if ($key == 'exception') {
-                        $dump_file = system('mktemp');
-                        $dump_file_handle = fopen($dump_file, 'aw');
-                        stderr('dump file: ' . $dump_file . PHP_EOL);
                         $out->dump(STDERR);
                         $exception = $out->get_last_exception();
                         $this->assertEquals($exception['message'], $val['message']);
