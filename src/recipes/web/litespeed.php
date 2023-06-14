@@ -55,11 +55,14 @@ task('deploy:release:after', function () {
         EOD;
     }
 
-    $file = fopen($litespeed_path);
+    $app_id = get('app_id');
+    $file = fopen("$litespeed_path/context-$app_id.conf");
     fwrite($file, $context);
     fclose($file);
+
+    
 });
 
-// task('deploy:symlink:after', function () {
-
-// });
+task('deploy:symlink:after', function () {
+    run("service lsws restart");
+});
