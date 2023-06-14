@@ -7,7 +7,7 @@ task('deploy:release:preparation', function() {
     writeln("Checking deploy path.");
     $deploy_path = get('deploy_path');
     if (file_exists($deploy_path) && !is_dir($deploy_path)) {
-        throw(error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory"));
+        throw error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
     }
 
     $release_list = get('release_list');
