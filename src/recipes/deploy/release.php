@@ -13,20 +13,6 @@ task('deploy:release:preparation', function () {
     // Create deploy path
     run("mkdir -p {{deploy_path}}/releases");
 
-    // Assign owner to deploy path
-    if (get('app_user') !== false && get('app_group') !== false) {
-        run("chown {{app_user}}:{{app_group}} {{deploy_path}}");
-
-    } elseif (get('app_user') !== false) {
-        run("chown {{app_user}} {{deploy_path}}");
-
-    } elseif (get('app_group') !== false) {
-        run("chgrp {{app_group}} {{deploy_path}}");
-    }
-
-    // Assign chmod to deploy path
-    run("chmod u+rwx,g+rx  {{deploy_path}}");
-
     // Get all releases
     set('releases_list', array_map('basename', glob($deploy_path . '/release.*')));
 
@@ -54,6 +40,20 @@ task('deploy:release:preparation', function () {
 task('deploy:release:unzip_artifact', function () {
     // Create release path
     run("mkdir -p {{release_path}}");
+
+    // Assign owner to release path
+    if (get('app_user') !== false && get('app_group') !== false) {
+        run("chown {{app_user}}:{{app_group}} {{release_path}}");
+
+    } elseif (get('app_user') !== false) {
+        run("chown {{app_user}} {{release_path}}");
+
+    } elseif (get('app_group') !== false) {
+        run("chgrp {{app_group}} {{release_path}}");
+    }
+
+    // Assign chmod to release path
+    run("chmod u+rwx,g+rx  {{release_path}}");
 
     // Chmod all the item to be added to this directory
     if (get('app_group') !== false) {
