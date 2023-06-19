@@ -78,7 +78,6 @@ final class FlyerTest extends TestCase
 
     private function asserter(mixed $matcher, mixed $subject)
     {
-        $matcher_val = '';
         if (is_array($matcher) && isset($matcher['regex_match'])) {
             $matcher_val = $matcher['regex_match'];
             $this->assertMatchesRegularExpression('/' . $matcher_val . '/', $subject);

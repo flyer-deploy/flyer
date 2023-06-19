@@ -67,7 +67,7 @@ class DeployerOutput
 
                 $out->append(new DeployerLog(DeployerLogTypes::TASK_RUNNING, $line));
                 $previous_line_state = DeployerLogTypes::TASK_RUNNING;
-            } elseif (preg_match('/^done (.+?) \d+ms$/', $line, $matches)) {
+            } elseif (preg_match('/^done (.+?) \d+.+?$/', $line, $matches)) {
                 if ($log !== null) {
                     $out->append($log);
                     $log = null;
