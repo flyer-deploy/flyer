@@ -4,6 +4,7 @@ namespace Deployer;
 
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../common/utils.php';
+require __DIR__ . '/deploy/additional.php';
 require __DIR__ . '/deploy/release.php';
 require __DIR__ . '/deploy/load_config.php';
 require __DIR__ . '/deploy/shared.php';
