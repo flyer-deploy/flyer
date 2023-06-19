@@ -97,6 +97,9 @@ task('deploy', function () {
     // Set permission writeable to dirs
     invoke('deploy:writable');
 
+    // Add external additional files into release path
+    invoke('deploy:additional');
+
     // Command hook for pre symlink
     if (isset($config['command_hooks']['pre_symlink']) && $config['command_hooks']['pre_symlink'] === false) {
         // Do nothing
