@@ -4,77 +4,124 @@ namespace Deployer;
 
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../common/utils.php';
-require __DIR__ . '/deploy/permission.php';
-require __DIR__ . '/deploy/symlink.php';
 require __DIR__ . '/deploy/release.php';
+require __DIR__ . '/deploy/load_config.php';
 require __DIR__ . '/deploy/shared.php';
+require __DIR__ . '/deploy/writable.php';
+require __DIR__ . '/deploy/symlink.php';
+require __DIR__ . '/deploy/cleanup.php';
+
 
 localhost();
 
+// Name of the app
+set('app_id', mandatory(getenv('APP_ID'), 'APP_ID environment variable'));
 
-task('deploy:prepare', function () {
-    set('app_id', mandatory(getenv('APP_ID'), 'APP_ID environment variable'));
-    set('app_user', getenv('APP_USER'));
-    set('app_group', getenv('APP_GROUP'));
-    set('writable_mode', getenv('WRITABLE_MODE'));
-    set('artifact_file', mandatory(getenv('ARTIFACT_FILE'), 'ARTIFACT_FILE environment variable'));
-    set('deploy_path', mandatory(getenv('DEPLOY_PATH'), 'DEPLOY_PATH environment variable'));
-    set('shared_path', getenv('SHARED_PATH') ?? '/var/share');
-    set('additional_files_dir', getenv('ADDITIONAL_FILES_DIR'));
-    set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));
+// User to be assigned to app
+set('app_user', getenv('APP_USER'));
 
-    set('current_path', '{{deploy_path}}/current');
+// Group to be assigned to app
+set('app_group', getenv('APP_GROUP'));
 
-    if (get('with_secure_default_permission') == 1 && !commandExist('setfacl')) {
-        writeln("YOU should be ashamed for not installing setfacl >:(");
+// Set writable to user or to group
+set('writable_mode', getenv('WRITABLE_MODE'));
+
+// File name of zipped artifact
+set('artifact_file', mandatory(getenv('ARTIFACT_FILE'), 'ARTIFACT_FILE environment variable'));
+
+// Location for the app to be deployed
+set('deploy_path', mandatory(getenv('DEPLOY_PATH'), 'DEPLOY_PATH environment variable'));
+
+// Return current release path
+set('current_path', '{{deploy_path}}/current');
+
+// Shared dir location for the app
+set('shared_path', getenv('SHARED_PATH') ?? '/var/share');
+
+// Additional files to be added to release, Azagent
+set('additional_files_dir', getenv('ADDITIONAL_FILES_DIR'));
+
+// IDK what this do
+set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));
+
+// Hall of shame
+if (get('with_secure_default_permission') == 1 && !commandExist('setfacl')) {
+    writeln("YOU should be ashamed for not installing setfacl >:(");
+}
+
+task('hook:post_release', function () {
+    if (isset(get('config')['command_hooks']['post_release'])) {
+        run(get('config')['command_hooks']['post_release']);
     }
 });
 
-
-task('deploy:additional', function () {
-    $config = get('config');
-
-    if (isset($config['additional']['files'])) {
-        if (get('additional_files_dir') === false) {
-            throw error("ADDITIONAL_FILES_DIR is not specified while flyer.yaml specifies `additional.files`.");
-        }
-
-        foreach($config['additional']['files'] as $file) {
-            writeln("Copying file {{additional_files_dir}}/$file to {{release_path}}/$file");
-            run("cp {{additional_files_dir}}/$file {{release_path}}/$file");
-        }
+task('hook:pre_symlink', function () {
+    if (isset(get('config')['command_hooks']['pre_symlink'])) {
+        run(get('config')['command_hooks']['pre_symlink']);
     }
 });
 
-
-task('deploy:start', function () {
-    $config = get('config');
-
-    if (isset($config['command_hooks']['start'])) {
-        run($config['command_hooks']['start']);
+task('hook:post_symlink', function () {
+    if (isset(get('config')['command_hooks']['post_symlink'])) {
+        run(get('config')['command_hooks']['post_symlink']);
     }
 });
 
+task('hook:start', function () {
+    if (isset(get('config')['command_hooks']['start'])) {
+        run(get('config')['command_hooks']['start']);
+    }
+});
 
 task('deploy', function () {
-    invoke('deploy:prepare');
+    // Showing info about current deployment
+    info("deploying <fg=magenta;options=bold>{{app_id}}</>");
+
+    // Release the app to deploy path
     invoke('deploy:release');
-    invoke('deploy:permission');
-    invoke('deploy:additional');
-    invoke('deploy:shared');
-    invoke('deploy:symlink');
-    invoke('deploy:start');
-    invoke('cleanup');
-});
 
+    // Load configuration flyer.yaml
+    invoke('deploy:load_config');
+    $config = get('config');
 
-task('cleanup', function () {
-    $release_list = get('release_list');
-    $new_release = get('new_release');
-
-    $delete_queue = array_filter($release_list, fn ($release) => $release !== $new_release);
-
-    foreach ($delete_queue as $release) {
-        run("rm -rf {{deploy_path}}/$release");
+    // Command hook for post release
+    if (isset($config['command_hooks']['post_release']) && $config['command_hooks']['post_release'] === false) {
+        // Do nothing
+    } else {
+        invoke('hook:post_release');
     }
+
+    // Set shared dirs
+    invoke('deploy:shared');
+
+    // Set permission writeable to dirs
+    invoke('deploy:writable');
+
+    // Command hook for pre symlink
+    if (isset($config['command_hooks']['pre_symlink']) && $config['command_hooks']['pre_symlink'] === false) {
+        // Do nothing
+    } else {
+        invoke('hook:pre_symlink');
+    }
+
+    // Symlink release to deploy_path/current
+    invoke('deploy:symlink');
+
+    // Command hook for post symlink
+    if (isset($config['command_hooks']['post_symlink']) && $config['command_hooks']['post_symlink'] === false) {
+        // Do nothing
+    } else {
+        invoke('hook:post_symlink');
+    }
+
+    // Command hook for starting the app
+    if (!isset($config['command_hooks']['start']) && $config['command_hooks']['start'] === false) {
+        // Do nothing
+    } else {
+        invoke('hook:start');
+    }
+
+    // Cleanup for after deployment
+    invoke('deploy:cleanup');
 });
+

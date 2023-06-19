@@ -18,21 +18,28 @@ set(
 $config = get('config');
 
 // Check if 'webroot' parameter is specified and assign it to 'web_litespeed_webroot' variable
-if (!isset($config['template']['params']['webroot'])) {
-    throw wrro("Parameter 'webroot' not specified");
-}
-set('web_litespeed_webroot', $config['template']['params']['webroot']);
+set('web_litespeed_webroot', function () {
+    if (!isset(get('config')['template']['params']['webroot'])) {
+        throw error("Parameter 'webroot' not specified");
+    }
 
-// Assign 'extra_headers' parameter to 'web_litespeed_extra_headers' variable if it exists
-$extra_headers = $config['template']['params']['extra_headers'] ?? '';
-set('web_litespeed_extra_headers', $extra_headers);
+    return get('config')['template']['params']['webroot'];
+});
 
 // Assign 'blocked_files' parameter to 'web_litespeed_blocked_files' variable if it exists
-$blocked_files = $config['template']['params']['blocked_files'] ?? [];
-set('web_litespeed_blocked_files', $blocked_files);
+set('web_litespeed_blocked_files', function () {
+    return get('config')['template']['params']['blocked_files'] ?? [];
+});
+
+// Assign 'extra_headers' parameter to 'web_litespeed_extra_headers' variable if it exists
+set('web_litespeed_extra_headers', function () {
+    return get('config')['template']['params']['extra_headers'] ?? '';
+});
+
+
 
 // Run task after 'deploy:release'
-task('deploy:release:after', function () {
+task('hook:post_release', function () {
     $config = get('config');
     $release_path = get('release_path');
     $litespeed_path = get('web_litespeed_path');
@@ -42,6 +49,11 @@ task('deploy:release:after', function () {
     $blocked_files = get('web_litespeed_blocked_files');
 
     run("mkdir -p $litespeed_context_dir");
+
+    $content_extra_headers = "";
+    foreach ($extra_headers as $header) {
+        $content_extra_headers .= "$header " . $extra_headers[$header];
+    }
 
     $context = "
     context $litespeed_path {
@@ -53,7 +65,7 @@ task('deploy:release:after', function () {
         addDefaultCharset off
         phpIniOverride {}
         extraHeaders <<<END_rules
-        $extra_headers
+        $content_extra_headers
         END_rules
     }
     ";
@@ -74,6 +86,6 @@ task('deploy:release:after', function () {
 
 });
 
-task('deploy:symlink:after', function () {
+task('hook:post_symlink', function () {
     run("service lsws restart");
 });

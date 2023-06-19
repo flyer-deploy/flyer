@@ -5,7 +5,6 @@ permission:
     - path: storage/uploads
       recursive: false
     - path: storage/some_random_file
-      by: user
 
 shared:
   dirs:

@@ -2,37 +2,15 @@
 
 namespace Deployer;
 
-task('deploy:symlink:before', function () {
-    $config = get('config');
-
-    if (isset($config['command_hooks']['pre_symlink'])) {
-        run($config['command_hooks']['pre_symlink']);
-    }
-});
-
-
-task('deploy:symlink:after', function () {
-    $config = get('config');
-
-    if (isset($config['command_hooks']['post_symlink'])) {
-        run($config['command_hooks']['post_symlink']);
-    }
-});
-
-
 task('deploy:symlink', function () {
-    $config = get('config');
-    
-    if ($config['command_hooks']['pre_symlink'] != "null") {
-        invoke('deploy:symlink:before');
+    if (!has('current_path')) {
+        throw error("Current Path is not specified. Is application released yet?");
     }
-    
-    // Symlink release to current
-    writeln("Creating symbolic link {{release_path}} to {{current_path}}");
+
+    // Check if release_path is set
+    if (!has('release_path') || !is_dir(get('release_path'))) {
+        throw error("Release directory didn't exist. Is application released yet?");
+    }
+
     run("ln -sfn {{release_path}} {{current_path}}");
-
-    if ($config['command_hooks']['post_symlink'] != "null") {
-        invoke('deploy:symlink:after');
-    }
 });
-

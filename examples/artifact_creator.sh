@@ -12,6 +12,7 @@ directory=""
 filename=""
 yaml_file=""
 with_composer_create_project=0
+clean_first=0
 
 display_usage() {
     echo "Usage: $0 [-p <directory>] [-z <filename>] [-y <yaml_file>] -c"
@@ -21,25 +22,41 @@ display_usage() {
     echo "-z : Zip filename"
     echo "-y : Yaml file"
     echo "-c : With composer create project"
+    echo "-d : Delete (clean) target directory and zip filename"
     echo
     cat <<EOL
 Example usage:
-./artifact_creator.sh -p ./examples/larapel -z ./examples/larapel.zip -y /tmp/flyer.yaml -c
+./examples/artifact_creator.sh -p ./examples/larapel -z ./examples/larapel.zip -y ./examples/flyer.yaml -c 1 -d 1
 EOL
 }
 
-while getopts ":p:z:y:c:" opt; do
+while getopts ":p:z:y:c:d:" opt; do
     case $opt in
     p) directory=$OPTARG ;;
     z) filename=$OPTARG ;;
     y) yaml_file=$OPTARG ;;
     c) with_composer_create_project=1 ;;
+    d) clean_first=1 ;;
     \?)
         display_usage
         exit 1
         ;;
     esac
 done
+
+if [ -n "$directory" ]; then
+    directory=$(readlink -f $directory)
+fi
+
+if [ -n "$filename" ]; then
+    filename=$(readlink -f $filename)
+fi
+
+if [ -n "$directory" ] && [ -n "$filename" ] && [ $clean_first == 1 ]; then
+    echo "Deleting target project directory and zip file"
+    rm -rf $directory
+    rm -f $filename
+fi
 
 if [ -z "$directory" ]; then
     echo "Please provide -p (directory) option."

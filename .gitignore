@@ -5,5 +5,3 @@ examples/*
 !examples/artifact_creator.sh
 !examples/flyer.toml
 !examples/flyer.yaml
-test.php
-test.sh

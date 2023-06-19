@@ -2,23 +2,25 @@
 
 namespace Deployer;
 
-task('deploy:release:preparation', function () {
+task('deploy:release', function () {
     $deploy_path = get('deploy_path');
+    $current_path = get('current_path');
+    $artifact_file = get('artifact_file');
 
     // Check if deploy path is a directory
     if (file_exists($deploy_path) && !is_dir($deploy_path)) {
         throw error("Deploy path {{deploy_path}} is a regular file, not an existing or a non-existent directory");
     }
 
-    // Create deploy path
-    run("mkdir -p {{deploy_path}}/releases");
+    // Create deploy directory if not exist
+    run("mkdir -p {{deploy_path}}");
 
     // Get all releases
-    set('releases_list', array_map('basename', glob($deploy_path . '/release.*')));
+    set('release_list', array_map('basename', glob($deploy_path . '/release.*')));
 
-    // Get release name
+    // Generate release name from previous releases
     set('release_name', function () {
-        $release_list = get('releases_list');
+        $release_list = get('release_list');
         $current_date = date('Ymd');
         $new_release  = "release.$current_date.1";
 
@@ -35,6 +37,15 @@ task('deploy:release:preparation', function () {
 
     // Set release path
     set('release_path', '{{deploy_path}}/{{release_name}}');
+
+    // If current_path points to something like "/var/www/html", make sure it is
+    // a symlink and not a directory.
+    if (test('[ ! -L {{current_path}} ] && [ -d {{current_path}} ]')) {
+        throw error("There is a directory (not symlink) at {{current_path}}.\n Remove this directory so it can be replaced with a symlink for atomic deployments.");
+    }
+
+    // Unzip artifact
+    invoke('deploy:release:unzip_artifact');
 });
 
 task('deploy:release:unzip_artifact', function () {
@@ -67,46 +78,4 @@ task('deploy:release:unzip_artifact', function () {
 
     // Extract artifact to release
     run("unzip -qq {{artifact_file}} -d {{release_path}}");
-});
-
-task('deploy:release:load_config', function () {
-    // Load yaml file from release
-    set('config', yaml_parse_file(get('release_path') . '/flyer.yaml') ?? []);
-
-    $config = get('config');
-
-    // Load template if specified
-    if (isset($config['template']['name'])) {
-        $schema = $config['template']['name'];
-        $path = __DIR__ . '/../' . str_replace('.', '/', $schema) . '.php';
-
-        if (file_exists($path)) {
-            require $path;
-            writeln("Using template $schema");
-        } else {
-            writeln("Template name $schema invalid");
-        }
-    }
-});
-
-task('deploy:release:after', function () {
-    $config = get('config');
-
-    if (isset($config['command_hooks']['post_release'])) {
-        run($config['command_hooks']['post_release']);
-    }
-});
-
-task('deploy:release', function () {
-    invoke('deploy:release:preparation');
-    invoke('deploy:release:unzip_artifact');
-    invoke('deploy:release:load_config');
-
-    $config = get('config');
-    if (
-        isset($config['command_hooks']['post_release']) &&
-        $config['command_hooks']['post_release'] != "null"
-    ) {
-        invoke('deploy:release:after');
-    }
 });
