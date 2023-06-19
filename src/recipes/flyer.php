@@ -14,41 +14,6 @@ require __DIR__ . '/deploy/cleanup.php';
 
 localhost();
 
-// Name of the app
-set('app_id', mandatory(getenv('APP_ID'), 'APP_ID environment variable'));
-
-// User to be assigned to app
-set('app_user', getenv('APP_USER'));
-
-// Group to be assigned to app
-set('app_group', getenv('APP_GROUP'));
-
-// Set writable to user or to group
-set('writable_mode', getenv('WRITABLE_MODE'));
-
-// File name of zipped artifact
-set('artifact_file', mandatory(getenv('ARTIFACT_FILE'), 'ARTIFACT_FILE environment variable'));
-
-// Location for the app to be deployed
-set('deploy_path', mandatory(getenv('DEPLOY_PATH'), 'DEPLOY_PATH environment variable'));
-
-// Return current release path
-set('current_path', '{{deploy_path}}/current');
-
-// Shared dir location for the app
-set('shared_path', getenv('SHARED_PATH') ?? '/var/share');
-
-// Additional files to be added to release, Azagent
-set('additional_files_dir', getenv('ADDITIONAL_FILES_DIR'));
-
-// IDK what this do
-set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));
-
-// Hall of shame
-if (get('with_secure_default_permission') == 1 && !commandExist('setfacl')) {
-    writeln("YOU should be ashamed for not installing setfacl >:(");
-}
-
 task('hook:post_release', function () {
     if (isset(get('config')['command_hooks']['post_release'])) {
         run(get('config')['command_hooks']['post_release']);
@@ -74,6 +39,41 @@ task('hook:start', function () {
 });
 
 task('deploy', function () {
+    // Name of the app
+    set('app_id', mandatory(getenv('APP_ID'), 'APP_ID environment variable'));
+
+    // User to be assigned to app
+    set('app_user', getenv('APP_USER'));
+
+    // Group to be assigned to app
+    set('app_group', getenv('APP_GROUP'));
+
+    // Set writable to user or to group
+    set('writable_mode', getenv('WRITABLE_MODE'));
+
+    // File name of zipped artifact
+    set('artifact_file', mandatory(getenv('ARTIFACT_FILE'), 'ARTIFACT_FILE environment variable'));
+
+    // Location for the app to be deployed
+    set('deploy_path', mandatory(getenv('DEPLOY_PATH'), 'DEPLOY_PATH environment variable'));
+
+    // Return current release path
+    set('current_path', '{{deploy_path}}/current');
+
+    // Shared dir location for the app
+    set('shared_path', getenv('SHARED_PATH') ?? '/var/share');
+
+    // Additional files to be added to release, Azagent
+    set('additional_files_dir', getenv('ADDITIONAL_FILES_DIR'));
+
+    // IDK what this do
+    set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));
+
+    // Hall of shame
+    if (get('with_secure_default_permission') == 1 && !commandExist('setfacl')) {
+        writeln("YOU should be ashamed for not installing setfacl >:(");
+    }
+
     // Showing info about current deployment
     info("deploying <fg=magenta;options=bold>{{app_id}}</>");
 
@@ -115,7 +115,7 @@ task('deploy', function () {
     }
 
     // Command hook for starting the app
-    if (!isset($config['command_hooks']['start']) && $config['command_hooks']['start'] === false) {
+    if (isset($config['command_hooks']['start']) && $config['command_hooks']['start'] === false) {
         // Do nothing
     } else {
         invoke('hook:start');
@@ -124,4 +124,3 @@ task('deploy', function () {
     // Cleanup for after deployment
     invoke('deploy:cleanup');
 });
-
