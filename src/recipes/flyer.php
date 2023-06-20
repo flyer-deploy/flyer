@@ -40,6 +40,8 @@ task('hook:start', function () {
 });
 
 task('deploy', function () {
+    // Variable Sets
+    // ===========================================
     // Name of the app
     set('app_id', mandatory(getenv('APP_ID'), 'APP_ID environment variable'));
 
@@ -69,6 +71,7 @@ task('deploy', function () {
 
     // IDK what this do
     set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));
+    // ===========================================
 
     // Hall of shame
     if (get('with_secure_default_permission') == 1 && !commandExist('setfacl')) {
