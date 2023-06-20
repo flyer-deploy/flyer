@@ -54,38 +54,40 @@ task('hook:post_release', function () {
     // Transform extra headers
     $extra_headers_array = [];
     foreach ($extra_headers as $header => $value) {
-        array_push($extra_headers_array, "    Header set $header $value");
+        array_push($extra_headers_array, "Header set $header $value");
     }
     $extra_headers = join("\n", $extra_headers_array);
 
     // Write config with extra headers
     array_push($context_array, <<<EOT
-    context $litespeed_path {
-        location $release_path/$webroot
-        allowBrowse 1
-        rewrite {
-          enable 1
-        }
-        addDefaultCharset off
-        phpIniOverride {}
-        extraHeaders <<<END_rules
-    $extra_headers
-    END_rules
+context $litespeed_path {
+    location $release_path/$webroot
+    allowBrowse 1
+    rewrite {
+        enable 1
     }
-    EOT);
+    addDefaultCharset off
+    phpIniOverride {}
+    extraHeaders <<<END_rules
+
+$extra_headers
+
+END_rules
+}
+EOT);
 
     // Transform blocked files
     foreach ($blocked_files as $file) {
-        $context .= <<<EOT
-        \n
-        context $litespeed_path/$file {
-            allowBrowse 0
-        }
-        EOT;
+        array_push($context_array, <<<EOT
+context $litespeed_path/$file {
+    allowBrowse 0
+}
+EOT);
     }
 
+    $context = join("\n\n", $context_array);
     $app_id = get('app_id');
-    $file = fopen("$litespeed_path/context-$app_id.conf", 'w+');
+    $file = fopen("$litespeed_context_dir/context-$app_id.conf", 'w+');
     fwrite($file, $context);
     fclose($file);
 });
