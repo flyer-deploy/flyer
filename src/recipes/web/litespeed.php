@@ -11,7 +11,7 @@ set(
 // Set 'web_litespeed_context_dir' variable
 set(
     'web_litespeed_context_dir',
-    mandatory(getenv('FLYER_WEB_LITESPEED_CONTEXTS_DIR'), 'FLYER_WEB_LITESPEED_CONTEXTS_DIR environment variable')
+    mandatory(getenv('FLYER_WEB_LITESPEED_CONTEXT_DIR'), 'FLYER_WEB_LITESPEED_CONTEXT_DIR environment variable')
 );
 
 // Get 'config' variable
@@ -47,15 +47,19 @@ task('hook:post_release', function () {
     $webroot = get('web_litespeed_webroot');
     $extra_headers = get('web_litespeed_extra_headers');
     $blocked_files = get('web_litespeed_blocked_files');
+    $context_array = [];
 
     run("mkdir -p $litespeed_context_dir");
 
-    $content_extra_headers = "";
-    foreach ($extra_headers as $header) {
-        $content_extra_headers .= "$header " . $extra_headers[$header];
+    // Transform extra headers
+    $extra_headers_array = [];
+    foreach ($extra_headers as $header => $value) {
+        array_push($extra_headers_array, "    Header set $header $value");
     }
+    $extra_headers = join("\n", $extra_headers_array);
 
-    $context = "
+    // Write config with extra headers
+    array_push($context_array, <<<EOT
     context $litespeed_path {
         location $release_path/$webroot
         allowBrowse 1
@@ -65,25 +69,25 @@ task('hook:post_release', function () {
         addDefaultCharset off
         phpIniOverride {}
         extraHeaders <<<END_rules
-        $content_extra_headers
-        END_rules
+    $extra_headers
+    END_rules
     }
-    ";
+    EOT);
 
+    // Transform blocked files
     foreach ($blocked_files as $file) {
-        $context .= "
+        $context .= <<<EOT
+        \n
         context $litespeed_path/$file {
             allowBrowse 0
         }
-        ";
+        EOT;
     }
 
     $app_id = get('app_id');
-    $file = fopen("$litespeed_path/context-$app_id.conf");
+    $file = fopen("$litespeed_path/context-$app_id.conf", 'w+');
     fwrite($file, $context);
     fclose($file);
-
-
 });
 
 task('hook:post_symlink', function () {

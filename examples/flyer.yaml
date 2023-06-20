@@ -1,3 +1,13 @@
+template:
+  name: web.litespeed
+  params:
+    webroot: public
+    blocked_files:
+      - .env
+    extra_headers:
+      x-frame-options: DENY
+      x-frame-all: DENY
+
 permission:
   writable_paths:
     - path: storage/logs
@@ -13,11 +23,4 @@ shared:
     - app/Exceptions
 
 command_hooks:
-  post_release: |
-    echo post deploy
-  pre_symlink: |
-    echo pre symlink
-  post_symlink: |
-    echo post symlink
-  start: |
-    echo start
+  post_symlink: false
