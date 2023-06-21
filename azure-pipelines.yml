@@ -1,14 +1,14 @@
 trigger:
   tags:
     include:
-      - "release-*"
+      - "v*"
 
 pool:
   name: Default
 
 jobs:
   - job: Release
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/release-')
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/v')
     steps:
       - script: |
           sudo update-alternatives --set php /usr/bin/php$(phpVersion)
