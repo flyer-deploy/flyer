@@ -1,7 +1,4 @@
 {
-  "require": {
-    "deployer/deployer": "^7.3"
-  },
   "require-dev": {
     "phpunit/phpunit": "^10.2"
   },
