@@ -18,11 +18,13 @@ task('deploy:writable', function () {
         set('writable_mode', 'by_group');
     }
 
+    $writable_paths = get('config')['permission']['writable_paths'];
+
     // Set writables
-    foreach (get('config')['writable_paths'] as $writable) {
+    foreach ($writable_paths as $writable) {
         $path = get('release_path') . '/' . $writable['path'];
         $mode = get('writable_mode');
-        $recursive = isset($writable_path['recursive']) ? !!$writable_path['recursive'] : false;
+        $recursive = isset($writable_path['recursive']) ? !!$writable['recursive'] : false;
         $maxdepth = $recursive ? '' : '-maxdepth 1';
 
         $who = '';
