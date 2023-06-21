@@ -59,10 +59,13 @@ jobs:
               $container \
               --file "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip" \
               -n "$version/installer.zip" \
-              --account-name $account_name
+              --account-name $account_name \
+              --auth-mode login
+
             az storage blob upload -c \
               $container \
               --file "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip" \
               -n "latest/installer.zip" \
               --account-name $account_name \
-              --overwrite
+              --overwrite \
+              --auth-mode login
