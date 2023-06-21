@@ -1,33 +1,65 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-  - main
+  tags:
+    include:
+      - "release-*"
 
 pool:
   name: Default
 
-steps:
-  - task: ArchiveFiles@2
-    inputs:
-      rootFolderOrFile: "$(Build.BinariesDirectory)"
-      includeRootFolder: true
-      archiveType: "zip"
-      archiveFile: "$(System.DefaultWorkingDirectory)/artifact.zip"
-      replaceExistingArchive: true
+jobs:
+  - job: Release
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/release-')
+    steps:
+      - script: |
+          sudo update-alternatives --set php /usr/bin/php$(phpVersion)
+          sudo update-alternatives --set phar /usr/bin/phar$(phpVersion)
+          sudo update-alternatives --set phpdbg /usr/bin/phpdbg$(phpVersion)
+          sudo update-alternatives --set php-cgi /usr/bin/php-cgi$(phpVersion)
+          sudo update-alternatives --set phar.phar /usr/bin/phar.phar$(phpVersion)
+          php -version
+        displayName: "Use PHP version $(phpVersion)"
 
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: "sp-deployer-recipes"
-      scriptType: "bash"
-      scriptLocation: "inlineScript"
-      inlineScript: |
-        az storage blob upload \
-            --container devops-deployer-recipes \
-            -n flyer/artifact.zip \
-            -f $(System.DefaultWorkingDirectory)/artifact.zip \
-            --overwrite \
-            --account-key $(STG_INTERNAL_FILES_ACC_KEY) \
-            --account-name $(STG_INTERNAL_FILES_ACC_NAME)
+      - script: |
+          rm -rf .git
+        displayName: Directory cleanup
+
+      - script: composer install --no-interaction --prefer-dist
+        displayName: "composer install"
+
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: "$(System.DefaultWorkingDirectory)/root"
+          includeRootFolder: false
+          archiveType: "zip"
+          archiveFile: "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip"
+          replaceExistingArchive: true
+
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: "Azure subscription 1(ff2d14b3-1df7-4fb7-9440-963a479f8079)"
+          scriptType: "bash"
+          scriptLocation: "inlineScript"
+          inlineScript: |
+            set -e
+
+            rg=$(ACCOUNT_RESOURCE_GROUP)
+            account_name=$(ACCOUNT_NAME)
+            container=$(ACCOUNT_CONTAINER)
+
+            # account_key=$(ACCOUNT_KEY)
+            version=$(Build.SourceBranchName)
+
+            az config set extension.use_dynamic_install=yes_without_prompt
+
+            echo 'Uploading...'
+            az storage blob upload -c \
+              $container \
+              --file "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip" \
+              -n "$version/installer.zip" \
+              --account-name $account_name
+            az storage blob upload -c \
+              $container \
+              --file "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip" \
+              -n "latest/installer.zip" \
+              --account-name $account_name \
+              --overwrite
