@@ -56,7 +56,7 @@ task('deploy:writable', function () {
         $files_default_writable = isset($writable['files_default_writable']) ? $writable['files_default_writable'] : false;
         if ($files_default_writable) {
             // is this considered hack?
-            run("find -L $path $maxdepth -exec setfacl -d -m $who::rwX {} \;");
+            run("find -L $path $maxdepth -type d -exec setfacl -d -m $who::rwX {} \;");
         }
     }
 });
