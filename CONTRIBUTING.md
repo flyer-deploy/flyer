@@ -20,4 +20,4 @@ Since Flyer will go to production soon, it needs to have proper contribution sta
 
 ## For admins/leads
 
-- For each release, create git tag with value `release-${version}`. The version uses semantic versioning
+- For each release, create git tag with value `v${version}`. The version uses semantic versioning
