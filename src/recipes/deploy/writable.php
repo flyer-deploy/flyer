@@ -24,7 +24,7 @@ task('deploy:writable', function () {
     foreach ($writable_paths as $writable) {
         $path = get('release_path') . '/' . $writable['path'];
         $mode = get('writable_mode');
-        $recursive = isset($writable_path['recursive']) ? !!$writable['recursive'] : false;
+        $recursive = isset($writable['recursive']) ? !!$writable['recursive'] : false;
         $maxdepth = $recursive ? '' : '-maxdepth 1';
 
         $who = '';
@@ -51,6 +51,12 @@ task('deploy:writable', function () {
         if (!empty($chown_identifier)) {
             // `find -L chown` so symlinks user and/or group are correctly set
             run("find -L $path $maxdepth -type d -exec chown $chown_identifier {} \;");
+        }
+
+        $files_default_writable = isset($writable['files_default_writable']) ? $writable['files_default_writable'] : false;
+        if ($files_default_writable) {
+            // is this considered hack?
+            run("find -L $path $maxdepth -exec setfacl -d -m $who::rwX {} \;");
         }
     }
 });

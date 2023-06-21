@@ -10,17 +10,13 @@ template:
 
 permission:
   writable_paths:
-    - path: storage/logs
+    - path: storage
       recursive: true
-    - path: storage/uploads
-      recursive: false
-    - path: storage/some_random_file
+      files_default_writable: true
 
 shared:
   dirs:
     - storage
-    - app/Console/Kernel.php
-    - app/Exceptions
 
 command_hooks:
   post_symlink: false
