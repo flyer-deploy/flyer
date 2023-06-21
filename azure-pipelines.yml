@@ -1,14 +1,17 @@
 trigger:
   tags:
     include:
-      - "release-*"
+      - "v*"
+
+variables:
+  phpVersion: 8.1
 
 pool:
   name: Default
 
 jobs:
   - job: Release
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/release-')
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/v')
     steps:
       - script: |
           sudo update-alternatives --set php /usr/bin/php$(phpVersion)
@@ -24,11 +27,11 @@ jobs:
         displayName: Directory cleanup
 
       - script: composer install --no-interaction --prefer-dist
-        displayName: "composer install"
+        displayName: "composer install --no-dev"
 
       - task: ArchiveFiles@2
         inputs:
-          rootFolderOrFile: "$(System.DefaultWorkingDirectory)/root"
+          rootFolderOrFile: "$(System.DefaultWorkingDirectory)"
           includeRootFolder: false
           archiveType: "zip"
           archiveFile: "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip"
@@ -36,7 +39,7 @@ jobs:
 
       - task: AzureCLI@2
         inputs:
-          azureSubscription: "Azure subscription 1(ff2d14b3-1df7-4fb7-9440-963a479f8079)"
+          azureSubscription: "sp-deployer-recipes"
           scriptType: "bash"
           scriptLocation: "inlineScript"
           inlineScript: |
@@ -56,10 +59,13 @@ jobs:
               $container \
               --file "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip" \
               -n "$version/installer.zip" \
-              --account-name $account_name
+              --account-name $account_name \
+              --auth-mode login
+
             az storage blob upload -c \
               $container \
               --file "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip" \
               -n "latest/installer.zip" \
               --account-name $account_name \
-              --overwrite
+              --overwrite \
+              --auth-mode login
