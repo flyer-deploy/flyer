@@ -27,7 +27,7 @@ jobs:
         displayName: Directory cleanup
 
       - script: composer install --no-interaction --prefer-dist
-        displayName: "composer install"
+        displayName: "composer install --no-dev"
 
       - task: ArchiveFiles@2
         inputs:
