@@ -36,7 +36,7 @@ jobs:
 
       - task: AzureCLI@2
         inputs:
-          azureSubscription: "Azure subscription 1(ff2d14b3-1df7-4fb7-9440-963a479f8079)"
+          azureSubscription: "sp-deployer-recipes"
           scriptType: "bash"
           scriptLocation: "inlineScript"
           inlineScript: |
