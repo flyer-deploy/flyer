@@ -4,7 +4,7 @@ namespace Deployer;
 
 task('deploy:writable', function () {
     // There must be flyer.yaml configuration
-    if (!has('config') || !isset(get('config')['writable_paths'])) {
+    if (!has('config') || !isset(get('config')['permission']['writable_paths'])) {
         return;
     }
 
