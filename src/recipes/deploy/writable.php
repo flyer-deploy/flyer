@@ -50,7 +50,7 @@ task('deploy:writable', function () {
         }
         if (!empty($chown_identifier)) {
             // `find -L chown` so symlinks user and/or group are correctly set
-            run("find -L $path $maxdepth -exec chown $chown_identifier {} \;");
+            run("find -L $path $maxdepth -type d -exec chown $chown_identifier {} \;");
         }
     }
 });
