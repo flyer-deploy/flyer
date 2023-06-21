@@ -31,7 +31,7 @@ jobs:
 
       - task: ArchiveFiles@2
         inputs:
-          rootFolderOrFile: "$(System.DefaultWorkingDirectory)/root"
+          rootFolderOrFile: "$(System.DefaultWorkingDirectory)"
           includeRootFolder: false
           archiveType: "zip"
           archiveFile: "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip"
