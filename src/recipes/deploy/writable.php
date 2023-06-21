@@ -24,7 +24,7 @@ task('deploy:writable', function () {
     foreach ($writable_paths as $writable) {
         $path = get('release_path') . '/' . $writable['path'];
         $mode = get('writable_mode');
-        $recursive = isset($writable_path['recursive']) ? !!$writable['recursive'] : false;
+        $recursive = isset($writable['recursive']) ? !!$writable['recursive'] : false;
         $maxdepth = $recursive ? '' : '-maxdepth 1';
 
         $who = '';
