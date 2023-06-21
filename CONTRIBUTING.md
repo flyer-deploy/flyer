@@ -8,8 +8,9 @@ Since Flyer will go to production soon, it needs to have proper contribution sta
 
   - release-\*
   - master
+  - develop
 
-- Create pull request to `main` if you want to integrate the changes you made
+- Create pull request to `develop` if you want to integrate the changes you made
 
 - If possible, it is extremely encouraged to create the test case for the new feature. You can either:
 
@@ -23,6 +24,8 @@ Since Flyer will go to production soon, it needs to have proper contribution sta
 
 ## For admins/leads
 
-- For each release, create new branch with the name `release-${version}`. The version uses semantic versioning
+- For each release, create new branch with the name `release-${version}` off `develop`. The version uses semantic versioning
 
-- Lock this branch so no more pushes are allowed. Future merges still go to `main`
+- Lock this branch so no more pushes are allowed. Future merges still go to `develop`
+
+- Merge this branch to `main`. This branch goes to release
