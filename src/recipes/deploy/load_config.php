@@ -2,6 +2,8 @@
 
 namespace Deployer;
 
+use Symfony\Component\Yaml\Yaml;
+
 task('deploy:load_config', function () {
     // Check if app already rleased
     if (!has('release_path') || !is_dir(get('release_path'))) {
@@ -12,7 +14,7 @@ task('deploy:load_config', function () {
     $config_file = get('release_path') . '/flyer.yaml';
     $config = [];
     if (file_exists($config_file)) {
-        $config = yaml_parse_file($config_file);
+        $config = Yaml::parseFile($config_file);
     }
     
     // Set config variable
