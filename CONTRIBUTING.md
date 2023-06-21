@@ -4,9 +4,13 @@ Since Flyer will go to production soon, it needs to have proper contribution sta
 
 ## For contributors
 
-- Any features, bug fixes, etc are pushed to its own branch
+- Any features, bug fixes, etc are pushed to its own branch. The branch name cannot be in either of these:
 
-- Create pull request if you want to integrate the changes you made
+  - release-\*
+  - master
+  - develop
+
+- Create pull request to `develop` if you want to integrate the changes you made
 
 - If possible, it is extremely encouraged to create the test case for the new feature. You can either:
 
