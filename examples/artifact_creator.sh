@@ -79,7 +79,6 @@ if [ -n "$yaml_file" ]; then
 fi
 
 cd "$directory" || exit
-touch $directory/storage/some_random_file
 
 if [ -n "$filename" ]; then
     zip -q -0 -r $filename .
