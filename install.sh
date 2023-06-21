@@ -14,21 +14,3 @@ if ! command -v dep &> /dev/null; then
     sudo chmod +x /usr/local/bin/dep
     echo "Deployer installed successfully."
 fi
-
-# # Add dep alias to root
-# if ! grep -q "alias dep='dep'" ~/.bashrc; then
-#     echo "Adding 'dep' alias to root..."
-#     echo "alias dep='dep'" | sudo tee -a ~/.bashrc
-#     source ~/.bashrc
-#     echo "'dep' alias added to root successfully."
-# fi
-
-# # Add dep alias to current user
-# if ! grep -q "alias dep='dep'" ~/.bashrc; then
-#     echo "Adding 'dep' alias to current user..."
-#     echo "alias dep='dep'" >> ~/.bashrc
-#     source ~/.bashrc
-#     echo "'dep' alias added to current user successfully."
-# fi
-
-# echo "Script execution completed."
