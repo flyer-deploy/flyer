@@ -38,7 +38,19 @@ task('deploy:writable', function () {
                 break;
         }
 
-        run("find $path $maxdepth -type f -exec chmod $who+w {} \;");
-        run("find $path $maxdepth -type d -exec chmod $who+wx {} \;");
+        run("find -L $path $maxdepth -type f -exec chmod $who+w {} \;");
+        run("find -L $path $maxdepth -type d -exec chmod $who+wx {} \;");
+
+        $chown_identifier = '';
+        if (!empty(get('app_user'))) {
+            $chown_identifier .= get('app_user');
+        }
+        if (!empty(get('app_group'))) {
+            $chown_identifier .= ':' . get('app_group');
+        }
+        if (!empty($chown_identifier)) {
+            // `find -L chown` so symlinks user and/or group are correctly set
+            run("find -L $path $maxdepth -exec chown $chown_identifier {} \;");
+        }
     }
 });
