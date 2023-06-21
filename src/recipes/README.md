@@ -31,13 +31,14 @@ The config schema:
         recursive: true
       - path: storage/uploads
         recursive: false
+        files_default_writable: true
       - path: storage/some_random_file
   ```
 
   This will:
 
-  - Set storage/logs directory to be recursively,
-  - Set storage/uploads directory to be writable. It only applies to the storage/uploads directory since it's not recursive, and
+  - Set storage/logs directory to be recursively
+  - Set storage/uploads directory to be writable. It only applies to the storage/uploads directory since it's not recursive. It also makes newly created directories are by default writable, using the config `files_default_writable`
   - Set storage/some_random_file file to be writable. If `recursive` is specified, it will be ignored since it's a file.
 
   Some defaults:

@@ -52,5 +52,11 @@ task('deploy:writable', function () {
             // `find -L chown` so symlinks user and/or group are correctly set
             run("find -L $path $maxdepth -exec chown $chown_identifier {} \;");
         }
+
+        $files_default_writable = isset($writable['files_default_writable']) ? $writable['files_default_writable'] : false;
+        if ($files_default_writable) {
+            // is this considered hack?
+            run("find -L $path $maxdepth -exec setfacl -d -m $who::rwX {} \;");
+        }
     }
 });
