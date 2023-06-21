@@ -1,7 +1,7 @@
 trigger:
-  tags:
+  branches:
     include:
-      - "v*"
+      - "release-*"
 
 variables:
   phpVersion: 8.1
@@ -11,7 +11,7 @@ pool:
 
 jobs:
   - job: Release
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/v')
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/heads/release-')
     steps:
       - script: |
           sudo update-alternatives --set php /usr/bin/php$(phpVersion)
