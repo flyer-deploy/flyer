@@ -33,7 +33,7 @@ set('web_litespeed_blocked_files', function () {
 
 // Assign 'extra_headers' parameter to 'web_litespeed_extra_headers' variable if it exists
 set('web_litespeed_extra_headers', function () {
-    return get('config')['template']['params']['extra_headers'] ?? '';
+    return get('config')['template']['params']['extra_headers'] ?? [];
 });
 
 
