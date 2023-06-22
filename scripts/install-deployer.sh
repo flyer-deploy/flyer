@@ -19,7 +19,7 @@ fi
 
 # Use Composer to install Deployer
 composer global require deployer/deployer
-composer_config_list=$(composer config --list | tail -n 1)
+composer_config_list=$(composer global config --list | tail -n 1)
 composer_packages_bin=${composer_config_list:7}
 
 cat <<EOL
