@@ -9,6 +9,7 @@ require __DIR__ . '/deploy/release.php';
 require __DIR__ . '/deploy/load_config.php';
 require __DIR__ . '/deploy/shared.php';
 require __DIR__ . '/deploy/writable.php';
+require __DIR__ . '/deploy/remove_files.php';
 require __DIR__ . '/deploy/symlink.php';
 require __DIR__ . '/deploy/cleanup.php';
 
@@ -110,6 +111,9 @@ task('deploy', function () {
     } else {
         invoke('hook:pre_symlink');
     }
+
+    // Remove files specificed in `remove` config option
+    invoke('deploy:remove_files');
 
     // Symlink release to deploy_path/current
     invoke('deploy:symlink');
