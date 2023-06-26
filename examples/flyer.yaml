@@ -25,3 +25,8 @@ remove:
   - composer.json
   - composer.lock
   - phpunit.xml
+
+dependencies:
+  - git
+  - composer
+  - ffmpeg
