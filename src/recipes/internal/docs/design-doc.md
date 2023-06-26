@@ -131,6 +131,19 @@ Solution:
 
 - Validate. Just make sure that this is not possible. Prevent devs from specifying files that is inside the directories that are shared. In this case, shared dirs are enough since, well, it shares the whole directory, without specifying individual files.
 
+## Dependencies
+
+Dependencies is a way to check that the thing exists. Currently it only supports running command to see whether the command exists or not. It is specified in the `dependencies` config in flyer.yaml. If dependencies cannot be satisfied, deployment will fail.
+
+This example config will check if `ffmpeg`, `git`, and `curl` commands exist in the system.
+
+```yaml
+dependencies:
+  - ffmpeg
+  - git
+  - curl
+```
+
 ## Additional files
 
 Flyer accepts `additional.files` and `ADDITIONAL_FILES_DIR` environment variable. For each file in `additional.files`, copy the corresponding file inside `ADDITIONAL_FILES_DIR` to the release directory.

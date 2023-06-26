@@ -123,6 +123,23 @@ The config schema:
       - assets/csv/pricing.csv
   ```
 
+### Dependencies
+
+- `dependencies`
+
+  List of dependencies. This checks if the commands exist in the system. If the dependencies cannot be satisfied, deployment will fail.
+
+  **Default**: null
+
+  Example:
+
+  ```yaml
+  dependencies:
+    - ffmpeg
+    - git
+    - curl
+  ```
+
 ### Additional files
 
 - `additional.files`
