@@ -13,7 +13,6 @@ require __DIR__ . '/deploy/remove_files.php';
 require __DIR__ . '/deploy/symlink.php';
 require __DIR__ . '/deploy/cleanup.php';
 
-
 localhost();
 
 task('hook:post_release', function () {
