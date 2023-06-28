@@ -8,9 +8,13 @@ task('deploy:cleanup', function () {
 
     $delete_queue = array_filter($release_list, fn($release) => $release !== $release_name);
     foreach ($delete_queue as $release) {
+        if (!test("[ -d {{deploy_path}}/$release ]")) {
+            return;
+        }
+
         if (get('async_cleanup') == 1) {
-            run("log_file=/tmp/{{app_id}}.{{release_name}}.log");
-            run("rm -rf {{deploy_path}}/$release > log_file &");
+            $log_file = parse("/tmp/{{app_id}}.{{release_name}}.log");
+            run("rm -rf {{deploy_path}}/$release > $log_file 2>&1 &");
         } else {
             run("rm -rf {{deploy_path}}/$release");
         }
