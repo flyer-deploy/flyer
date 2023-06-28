@@ -7,6 +7,7 @@ require __DIR__ . '/../common/utils.php';
 require __DIR__ . '/deploy/additional.php';
 require __DIR__ . '/deploy/release.php';
 require __DIR__ . '/deploy/load_config.php';
+require __DIR__ . '/deploy/dependencies.php';
 require __DIR__ . '/deploy/shared.php';
 require __DIR__ . '/deploy/writable.php';
 require __DIR__ . '/deploy/remove_files.php';
@@ -88,6 +89,9 @@ task('deploy', function () {
     // Load configuration flyer.yaml
     invoke('deploy:load_config');
     $config = get('config');
+
+    // Check dependencies
+    invoke('deploy:dependencies');
 
     // Command hook for post release
     if (isset($config['command_hooks']['post_release']) && $config['command_hooks']['post_release'] === false) {

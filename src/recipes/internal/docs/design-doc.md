@@ -70,7 +70,7 @@ find $writable -type d -exec chmod g+wx {} \;
 
 #### Who can write?
 
-It is specified in `WRITABLE_MODE` environment variable. It accepts two possible values: `by_user` and `by_group`, which configure whether the user or the group that can do write, respectively. 
+It is specified in `WRITABLE_MODE` environment variable. It accepts two possible values: `by_user` and `by_group`, which configure whether the user or the group that can do write, respectively.
 
 ## Shared files and directories
 
@@ -131,6 +131,19 @@ Solution:
 
 - Validate. Just make sure that this is not possible. Prevent devs from specifying files that is inside the directories that are shared. In this case, shared dirs are enough since, well, it shares the whole directory, without specifying individual files.
 
+## Dependencies
+
+Dependencies is a way to check that the thing exists. Currently it only supports running command to see whether the command exists or not. It is specified in the `dependencies` config in flyer.yaml. If dependencies cannot be satisfied, deployment will fail.
+
+This example config will check if `ffmpeg`, `git`, and `curl` commands exist in the system.
+
+```yaml
+dependencies:
+  - ffmpeg
+  - git
+  - curl
+```
+
 ## Additional files
 
 Flyer accepts `additional.files` and `ADDITIONAL_FILES_DIR` environment variable. For each file in `additional.files`, copy the corresponding file inside `ADDITIONAL_FILES_DIR` to the release directory.
@@ -159,6 +172,23 @@ Templates are just predefined command hooks. That's it. For each template-specif
 Templates can only do so much. In fact, I really want to make templates to be as minimal as possible. But it's not a good idea to expect that developers know how to configure nginx efficiently and securely, for example.
 
 ## Logging
+
+## Release cleanup
+
+Flyer reads environment variable `ASYNC_CLEANUP`. If set to '1' the `rm -rf` command run after the release will be put to background by appending the command with '&' symbol. So the full command will be:
+
+```sh
+rm -rf {{release_directory}} &
+```
+
+We also want to know if the cleanup succeeds or not so we need to redirect the stdout and stderr to log files:
+
+```sh
+log_file=/tmp/{{app.id}}.{{sequence_number}}.log
+rm -rf {{release_directory}} > log_file &
+```
+
+Write the log file location to the Deployer output as an information to the user.
 
 ## Low-level commands
 

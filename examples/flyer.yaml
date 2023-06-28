@@ -20,3 +20,13 @@ shared:
 
 command_hooks:
   post_symlink: false
+
+remove:
+  - composer.json
+  - composer.lock
+  - phpunit.xml
+
+dependencies:
+  - git
+  - composer
+  - ffmpeg

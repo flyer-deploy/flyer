@@ -28,4 +28,8 @@ Run this command to add \`dep\` binary to \$PATH:
     echo "export PATH=\$PATH:$composer_packages_bin/vendor/bin" >> ~/.bashrc
     source ~/.bashrc
 
+Run this command if you want all users to be able to run \`dep\`:
+
+    sudo ln -s $(which dep) /usr/local/bin
+
 EOL
