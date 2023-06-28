@@ -185,7 +185,7 @@ We also want to know if the cleanup succeeds or not so we need to redirect the s
 
 ```sh
 log_file=/tmp/{{app.id}}.{{sequence_number}}.log
-rm -rf {{release_directory}} > log_file &
+rm -rf {{release_directory}} > log_file 2>&1 &
 ```
 
 Write the log file location to the Deployer output as an information to the user.
