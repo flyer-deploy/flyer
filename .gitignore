@@ -5,3 +5,4 @@ examples/*
 !examples/artifact_creator.sh
 !examples/flyer.toml
 !examples/flyer.yaml
+src/recipes/log_file
