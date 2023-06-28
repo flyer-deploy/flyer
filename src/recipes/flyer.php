@@ -14,7 +14,6 @@ require __DIR__ . '/deploy/remove_files.php';
 require __DIR__ . '/deploy/symlink.php';
 require __DIR__ . '/deploy/cleanup.php';
 
-
 localhost();
 
 task('hook:post_release', function () {
@@ -73,6 +72,9 @@ task('deploy', function () {
 
     // IDK what this do
     set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));
+
+    // Additional files to be added to release, Azagent
+    set('async_cleanup', getenv('ASYNC_CLEANUP'));
     // ===========================================
 
     // Hall of shame
