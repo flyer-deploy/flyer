@@ -8,9 +8,13 @@ task('deploy:dependencies', function () {
     }
 
     $dependencies = get('config')['dependencies'];
+    if (!is_array($dependencies)) {
+        throw new ConfigurationException('Config \`dependencies\` is not of type array.');
+    }
+
     foreach ($dependencies as $cmd) {
         if (!commandExist($cmd)) {
-            throw error("$cmd is not installed yet.");
+            throw error("\`$cmd\` command is not available.");
         }
     }
 });
