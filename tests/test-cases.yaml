@@ -81,3 +81,31 @@
           class: Deployer\Exception\Exception
           message: >-
             ADDITIONAL_FILES_DIR is not specified while flyer.yaml specifies `additional.files`.
+
+# ----- Dependencies test
+- config:
+    dependencies:
+      - non-existent-command
+  env:
+    - value:
+        APP_ID: app_id
+        ARTIFACT_FILE:
+        DEPLOY_PATH:
+      expected:
+        exception:
+          class: Deployer\Exception\Exception
+          message: >-
+            \`non-existent-command\` command is not available.
+
+- config:
+    dependencies:
+      - git
+  env:
+    - value:
+        APP_ID: app_id
+        ARTIFACT_FILE:
+        DEPLOY_PATH:
+      result:
+        type: task_done_successfully
+        params:
+          task_name: deploy
