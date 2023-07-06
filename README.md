@@ -247,4 +247,4 @@ command_hook:
 
 ## Architecture
 
-🔗 [Architecture](./src/recipes/docs/design-doc.md)
+🔗 [Architecture](./src/recipes/internal/docs/design-doc.md)
