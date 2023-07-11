@@ -2,9 +2,8 @@
 
 ```yaml
 template:
-  name: web.nginx
+  name: web.nginx.php.laravel
   params:
-    mode: php.laravel
     webroot: public
     index: index.php
     static_file_caching:

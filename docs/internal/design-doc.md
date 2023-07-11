@@ -173,6 +173,59 @@ Templates can only do so much. In fact, I really want to make templates to be as
 
 ## Logging
 
+This section describes how Flyer manages log files (or any logs that are not in the files, in the future, maybe).
+
+Do these steps for each item in `logging.files`:
+
+1. If there are `logging.drivers` set and the `driver` config is not set in the item, set it to the first driver in `logging.drivers`. For example, this config:
+
+```yaml
+logging:
+  drivers:
+    - type: promtail
+  files:
+    - file: storage/logs/**/*.log
+```
+
+will automatically be populated with `driver: promtail` for each item `logging.files` item.
+
+### Promtail
+
+Flyer reads environment variable `PROMTAIL_CONFIG_FILE` that specifies where Promtail config is located. This env var is mandatory when `logging.driver` in the config is set to 'promtail'. Run these steps:
+
+1. Read the `PROMTAIL_CONFIG_FILE` YAML file. Throw error if the file is bad (file not found or not a valid YAML file).
+
+2. Create `scrape_configs` entry with `job_name` value `flyer_app_logs_${APP_ID}` if not available. Get a hold of this object since we'll need it later. Read more on the Promtail docs [here](https://grafana.com/docs/loki/latest/clients/promtail/configuration). Inside the `scrape_configs`, create one `pipeline_stages` stage with config:
+
+```yaml
+match:
+  selector: '{app_id="${APP_ID}"}'
+  stages:
+    - regex:
+      source: filename
+      expression: "{{release_path}}/(?P<short_filename>.+)"
+    - labels:
+      short_filename:
+```
+
+Used to generate `short_filename` label that only contains the log filename relative to the `{{release_path}}`.
+
+3. If `scrape_configs.pipeline_stages` config key is set in `params`, put or append it in the `scrape_configs.pipeline_stages` key in the Promtail config file.
+
+For each item in the `logging.files`, append item in the `static_configs` with this structure:
+
+```yaml
+labels:
+  __path__: {{release_path}}/{{item.file}}
+  __path_exclude__: {{release_path}}/{{item.exclude}}
+  app_id: ${APP_ID}
+  release_version: {{release_version}}
+  # ... merge with value of object static_configs.app_logs_labels.{{item.name}} if exists
+  # ... merge with value of object static_configs.global_labels if exists
+```
+
+### Log rotation
+
 ## Release cleanup
 
 Flyer reads environment variable `ASYNC_CLEANUP`. If set to '1' the `rm -rf` command run after the release will be put to background by appending the command with '&' symbol. So the full command will be:
