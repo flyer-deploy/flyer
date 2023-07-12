@@ -9,6 +9,7 @@ require __DIR__ . '/deploy/release.php';
 require __DIR__ . '/deploy/load_config.php';
 require __DIR__ . '/deploy/dependencies.php';
 require __DIR__ . '/deploy/shared.php';
+require __DIR__ . '/deploy/logging.php';
 require __DIR__ . '/deploy/writable.php';
 require __DIR__ . '/deploy/remove_files.php';
 require __DIR__ . '/deploy/symlink.php';
@@ -40,7 +41,7 @@ task('hook:start', function () {
     }
 });
 
-task('deploy', function () {
+function set_variables() {
     // Variable Sets
     // ===========================================
     // Name of the app
@@ -51,6 +52,8 @@ task('deploy', function () {
 
     // Group to be assigned to app
     set('app_group', getenv('APP_GROUP'));
+
+    set('release_version', mandatory(getenv('RELEASE_VERSION'), 'RELEASE_VERSION environment variable'));
 
     // Set writable to user or to group
     set('writable_mode', getenv('WRITABLE_MODE'));
@@ -75,8 +78,14 @@ task('deploy', function () {
 
     // Async cleanup to make `rm -rf` command in the cleanup step be put in background
     set('async_cleanup', getenv('ASYNC_CLEANUP'));
-    // ===========================================
 
+    set('promtail_config_file_path', getenv('PROMTAIL_CONFIG_FILE_PATH'));
+    // ===========================================
+}
+
+task('deploy', function () {
+    set_variables();
+    
     // Hall of shame
     if (get('with_secure_default_permission') == 1 && !commandExist('setfacl')) {
         writeln("YOU should be ashamed for not installing setfacl >:(");
@@ -110,6 +119,8 @@ task('deploy', function () {
 
     // Add external additional files into release path
     invoke('deploy:additional');
+
+    invoke('deploy:logging');
 
     // Command hook for pre symlink
     if (isset($config['command_hooks']['pre_symlink']) && $config['command_hooks']['pre_symlink'] === false) {

@@ -20,6 +20,10 @@ task('deploy:load_config', function () {
     // Set config variable
     set('config', $config);
 
+    foreach ($config as $key => $val) {
+        set($key . "_config", $val);
+    }
+
     // Load template if specified
     if (isset($config['template']['name'])) {
         $schema = $config['template']['name'];
@@ -28,6 +32,7 @@ task('deploy:load_config', function () {
         // Throw warning if template name error
         if (!file_exists($path)) {
             warning("Template name $schema is invalid");
+            return;
         }
 
         // Load template
