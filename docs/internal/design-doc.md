@@ -169,8 +169,6 @@ Before symlinking, remove files and/or directories configured in `remove` config
 
 Templates are just predefined command hooks. That's it. For each template-specific doc, refer to [templates docs directory](./templates/).
 
-Templates can only do so much. In fact, I really want to make templates to be as minimal as possible. But it's not a good idea to expect that developers know how to configure nginx efficiently and securely, for example.
-
 ## Logging
 
 ## Release cleanup
