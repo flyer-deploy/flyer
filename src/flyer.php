@@ -3,7 +3,7 @@
 namespace Deployer;
 
 require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/common/utils.php';
+require __DIR__ . '/utils/utils.php';
 require __DIR__ . '/deploy/additional.php';
 require __DIR__ . '/deploy/release.php';
 require __DIR__ . '/deploy/load_config.php';
@@ -44,39 +44,22 @@ task('hook:start', function () {
 function set_variables() {
     // Variable Sets
     // ===========================================
-    // Name of the app
     set('app_id', mandatory(getenv('APP_ID'), 'APP_ID environment variable'));
 
-    // User to be assigned to app
     set('app_user', getenv('APP_USER'));
 
-    // Group to be assigned to app
     set('app_group', getenv('APP_GROUP'));
 
     set('release_version', mandatory(getenv('RELEASE_VERSION'), 'RELEASE_VERSION environment variable'));
 
-    // Set writable to user or to group
     set('writable_mode', getenv('WRITABLE_MODE'));
 
-    // File name of zipped artifact
     set('artifact_file', mandatory(getenv('ARTIFACT_FILE'), 'ARTIFACT_FILE environment variable'));
-
-    // Location for the app to be deployed
     set('deploy_path', mandatory(getenv('DEPLOY_PATH'), 'DEPLOY_PATH environment variable'));
-
-    // Return current release path
     set('current_path', '{{deploy_path}}/current');
-
-    // Shared dir location for the app
     set('shared_path', getenv('SHARED_PATH') ?? '/var/share');
-
-    // Additional files to be added to release, Azagent
     set('additional_files_dir', getenv('ADDITIONAL_FILES_DIR'));
-
-    // IDK what this do
     set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));
-
-    // Async cleanup to make `rm -rf` command in the cleanup step be put in background
     set('async_cleanup', getenv('ASYNC_CLEANUP'));
 
     set('promtail_config_file_path', getenv('PROMTAIL_CONFIG_FILE_PATH'));
