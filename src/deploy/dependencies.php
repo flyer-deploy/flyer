@@ -3,13 +3,14 @@
 namespace Deployer;
 
 task('deploy:dependencies', function () {
-    if (!isset(get('config')['dependencies'])) {
+    if (get('dependencies') == null) {
+        writeln("Dependencies config not found. Skipping.");
         return;
     }
 
-    $dependencies = get('config')['dependencies'];
+    $dependencies = get('dependencies');
     if (!is_array($dependencies)) {
-        throw new ConfigurationException('Config \`dependencies\` is not of type array.');
+        throw error('Config \`dependencies\` is not of type array.');
     }
 
     foreach ($dependencies as $cmd) {

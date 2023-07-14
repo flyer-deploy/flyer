@@ -3,20 +3,36 @@
 namespace Deployer;
 
 task('deploy:cleanup', function () {
+    depends([
+        'app_id',
+        'deploy_path',
+        'release_list',
+        'release_name',
+    ]);
+
+    $app_id = get('app_id');
+    $async_cleanup = get('async_cleanup');
+    
+    $deploy_path = get('deploy_path');
     $release_list = get('release_list');
     $release_name = get('release_name');
+    $previous_release_name = get('previous_release_name');
 
-    $delete_queue = array_filter($release_list, fn($release) => $release !== $release_name);
-    foreach ($delete_queue as $release) {
-        if (!test("[ -d {{deploy_path}}/$release ]")) {
-            return;
+    // Delete previous releases
+    foreach ($release_list as $release) {
+        if ($release == $previous_release_name || $release == $release_name) {
+            continue;
+        } 
+
+        if (!test("[ -d $deploy_path/$release ]")) {
+            continue;
         }
 
-        if (get('async_cleanup') == 1) {
-            $log_file = parse("/tmp/{{app_id}}.{{release_name}}.log");
-            run("rm -rf {{deploy_path}}/$release > $log_file 2>&1 &");
+        if ($async_cleanup == true) {
+            $log_file = parse("/tmp/$app_id.$release_name.log");
+            run("rm -rf $deploy_path/$release > $log_file 2>&1 &");
         } else {
-            run("rm -rf {{deploy_path}}/$release");
+            run("rm -rf $deploy_path/$release");
         }
     }
 });

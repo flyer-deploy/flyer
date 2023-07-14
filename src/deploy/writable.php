@@ -3,40 +3,36 @@
 namespace Deployer;
 
 task('deploy:writable', function () {
-    // There must be flyer.yaml configuration
-    if (!has('config') || !isset(get('config')['permission']['writable_paths'])) {
+    if (get('writables') == null) {
+        writeln("Writable config not found. Skipping.");
         return;
     }
 
-    // Check if release_path is set
-    if (!has('release_path') || !is_dir(get('release_path'))) {
-        throw error("Release directory didn't exist. Is application released yet?");
-    }
+    depends([
+        'release_path',
+    ]);
 
     // Set default writable mode
     if (get('writable_mode') === false || !has('writable_mode')) {
         set('writable_mode', 'by_group');
     }
 
-    $writable_paths = get('config')['permission']['writable_paths'];
+
+    $release_path = get('release_path');
+    $writables = get('writable');
+    $mode = get('writable_mode');
+    
 
     // Set writables
-    foreach ($writable_paths as $writable) {
-        $path = get('release_path') . '/' . $writable['path'];
-        $mode = get('writable_mode');
-        $recursive = isset($writable['recursive']) ? !!$writable['recursive'] : false;
-        $maxdepth = $recursive ? '' : '-maxdepth 1';
+    foreach ($writables as $writable) {
+        $path = $release_path . '/' . $writable['path'];
 
-        $who = '';
-        switch ($mode) {
-            case 'by_user':
-                $who = 'u';
-                break;
-
-            case 'by_group':
-                $who = 'g';
-                break;
+        $maxdepth = '';
+        if (isset($writable['recursive'])) {
+            $maxdepth = $writable['recursive'] ? '' : '-maxdepth 1';
         }
+
+        $who = ($mode == 'by_user') ? 'u' : (($mode == 'by_group') ? 'g' : '');
 
         run("find -L $path $maxdepth -type f -exec chmod $who+w {} \;");
         run("find -L $path $maxdepth -type d -exec chmod $who+wx {} \;");

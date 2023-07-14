@@ -5,133 +5,160 @@ namespace Deployer;
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/utils/utils.php';
 require __DIR__ . '/deploy/additional.php';
-require __DIR__ . '/deploy/release.php';
-require __DIR__ . '/deploy/load_config.php';
-require __DIR__ . '/deploy/dependencies.php';
-require __DIR__ . '/deploy/shared.php';
-require __DIR__ . '/deploy/logging.php';
-require __DIR__ . '/deploy/writable.php';
-require __DIR__ . '/deploy/remove_files.php';
-require __DIR__ . '/deploy/symlink.php';
 require __DIR__ . '/deploy/cleanup.php';
+require __DIR__ . '/deploy/dependencies.php';
+require __DIR__ . '/deploy/load_flyer_yaml.php';
+require __DIR__ . '/deploy/logging.php';
+require __DIR__ . '/deploy/release.php';
+require __DIR__ . '/deploy/remove.php';
+require __DIR__ . '/deploy/shared.php';
+require __DIR__ . '/deploy/symlink.php';
+require __DIR__ . '/deploy/writable.php';
+
 
 localhost();
 
+
 task('hook:post_release', function () {
-    if (isset(get('config')['command_hooks']['post_release'])) {
-        run(get('config')['command_hooks']['post_release']);
+    $cmd = obtain(get('flyer_config'), 'command_hooks', 'post_release');
+    if ($cmd != null) {
+        run($cmd);
     }
 });
 
 task('hook:pre_symlink', function () {
-    if (isset(get('config')['command_hooks']['pre_symlink'])) {
-        run(get('config')['command_hooks']['pre_symlink']);
+    $cmd = obtain(get('flyer_config'), 'command_hooks', 'pre_symlink');
+    if ($cmd != null) {
+        run($cmd);
     }
 });
 
 task('hook:post_symlink', function () {
-    if (isset(get('config')['command_hooks']['post_symlink'])) {
-        run(get('config')['command_hooks']['post_symlink']);
+    $cmd = obtain(get('flyer_config'), 'command_hooks', 'post_symlink');
+    if ($cmd != null) {
+        run($cmd);
     }
 });
 
 task('hook:start', function () {
-    if (isset(get('config')['command_hooks']['start'])) {
-        run(get('config')['command_hooks']['start']);
+    $cmd = obtain(get('flyer_config'), 'command_hooks', 'start');
+    if ($cmd != null) {
+        run($cmd);
     }
 });
 
-function set_variables() {
-    // Variable Sets
-    // ===========================================
+
+function set_variables()
+{
+    // Common
     set('app_id', mandatory(getenv('APP_ID'), 'APP_ID environment variable'));
-
     set('app_user', getenv('APP_USER'));
-
     set('app_group', getenv('APP_GROUP'));
-
-    set('release_version', mandatory(getenv('RELEASE_VERSION'), 'RELEASE_VERSION environment variable'));
-
-    set('writable_mode', getenv('WRITABLE_MODE'));
-
     set('artifact_file', mandatory(getenv('ARTIFACT_FILE'), 'ARTIFACT_FILE environment variable'));
-    set('deploy_path', mandatory(getenv('DEPLOY_PATH'), 'DEPLOY_PATH environment variable'));
-    set('current_path', '{{deploy_path}}/current');
-    set('shared_path', getenv('SHARED_PATH') ?? '/var/share');
-    set('additional_files_dir', getenv('ADDITIONAL_FILES_DIR'));
+    set('deploy_path', function() {
+        $path = mandatory(getenv('DEPLOY_PATH'), 'DEPLOY_PATH environment variable');
+        if(!test("[ -d $path ]")) {
+            throw error("Deploy path .+? is a regular file, not an existing or a non-existent directory");
+        }
+        return $path;
+    });
+    set('current_path', "{{deploy_path}}/current");
+
+    // Release
+    set('release_name', null);
+    set('release_path', null);
+    set('release_list', null);
+    set('release_version', null);
+    set('previous_release_name', null);
     set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));
+
+    // Additional
+    set('additional', null);
+    set('additional_files_dir', function() {
+        $path = getenv('ADDITIONAL_FILES_DIR');
+        if(!test("[ -d $path ]")) {
+            throw error("Additional filed dir $path is a regular file, not an existing or a non-existent directory");
+        }
+        return $path;
+    });
+    
+
+    // Cleanup
     set('async_cleanup', getenv('ASYNC_CLEANUP'));
 
+    // Dependencies
+    set('dependencies', null);
+
+    // Logging
+    set('logging', null);
     set('promtail_config_file_path', getenv('PROMTAIL_CONFIG_FILE_PATH'));
-    // ===========================================
+
+    // Remove
+    set('remove_files', null);
+
+    // Shared
+    set('shared_dirs', null);
+    set('shared_files', null);
+    set('shared_path', getenv('SHARED_PATH') ?? "/var/share/{{app_id}}");
+
+    // Writable
+    set('writables', null);
+    set('writable_mode', getenv('WRITABLE_MODE') ?? "by_group");
+    echo "fin";
 }
+
 
 task('deploy', function () {
     set_variables();
-    
-    // Hall of shame
-    if (get('with_secure_default_permission') == 1 && !commandExist('setfacl')) {
-        writeln("YOU should be ashamed for not installing setfacl >:(");
-    }
 
-    // Showing info about current deployment
     info("deploying <fg=magenta;options=bold>{{app_id}}</>");
 
-    // Release the app to deploy path
     invoke('deploy:release');
+    invoke('deploy:load_flyer_yaml');
 
-    // Load configuration flyer.yaml
-    invoke('deploy:load_config');
-    $config = get('config');
-
-    // Check dependencies
-    invoke('deploy:dependencies');
-
-    // Command hook for post release
-    if (isset($config['command_hooks']['post_release']) && $config['command_hooks']['post_release'] === false) {
-        // Do nothing
-    } else {
+    // Post Release command hook
+    if (obtain(get('flyer_config'), 'command_hooks', 'post_release') !== false) {
         invoke('hook:post_release');
     }
 
-    // Set shared dirs
+    invoke('deploy:dependencies');
     invoke('deploy:shared');
-
-    // Set permission writeable to dirs
     invoke('deploy:writable');
-
-    // Add external additional files into release path
     invoke('deploy:additional');
-
     invoke('deploy:logging');
+    invoke('deploy:remove');
 
-    // Command hook for pre symlink
-    if (isset($config['command_hooks']['pre_symlink']) && $config['command_hooks']['pre_symlink'] === false) {
-        // Do nothing
-    } else {
+    // Pre Symlink command hook
+    if (obtain(get('flyer_config'), 'command_hooks', 'pre_symlink') !== false) {
         invoke('hook:pre_symlink');
     }
 
-    // Remove files specificed in `remove` config option
-    invoke('deploy:remove_files');
-
-    // Symlink release to deploy_path/current
     invoke('deploy:symlink');
 
-    // Command hook for post symlink
-    if (isset($config['command_hooks']['post_symlink']) && $config['command_hooks']['post_symlink'] === false) {
-        // Do nothing
-    } else {
+    // Post Symlink command hook
+    if (obtain(get('flyer_config'), 'command_hooks', 'post_symlink') !== false) {
         invoke('hook:post_symlink');
     }
 
-    // Command hook for starting the app
-    if (isset($config['command_hooks']['start']) && $config['command_hooks']['start'] === false) {
-        // Do nothing
-    } else {
+    invoke('deploy:cleanup');
+
+    // Start command hook
+    if (obtain(get('flyer_config'), 'command_hooks', 'start') !== false) {
         invoke('hook:start');
     }
+});
 
-    // Cleanup for after deployment
+
+task('rollback', function () {
+    // invoke('deploy:release');
+
+    invoke('deploy:load_flyer_yaml');
+    invoke('deploy:dependencies');
+    invoke('deploy:shared');
+    invoke('deploy:writable');
+    invoke('deploy:additional');
+    invoke('deploy:logging');
+    invoke('deploy:remove');
+    invoke('deploy:symlink');
     invoke('deploy:cleanup');
 });

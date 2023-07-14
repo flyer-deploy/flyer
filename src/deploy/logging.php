@@ -5,24 +5,26 @@ namespace Deployer;
 use Symfony\Component\Yaml\Yaml;
 
 task('deploy:logging', function() {
-    $logging_config = get('logging_config');
-    if ($logging_config == NULL) {
+    if (get('logging') == NULL) {
         writeln("Logging config not found. Skipping.");
         return;
     }
 
-    $promtail_config_file_path = get('promtail_config_file_path');
-    if ($promtail_config_file_path == NULL) {
-        writeln("PROMTAIL_CONFIG_FILE_PATH is not specified");
-        return;
-    }
+    depends([
+        'app_id',
+        'release_path',
+        'release_version',
+        'promtail_config_file_path',
+    ]);
 
     // if (!test($promtail_config_file_path)) {
     //     writeln("Invalid PROMTAIL_CONFIG_FILE_PATH. File not exist");
     //     return;
     // }
 
-    
+
+    $logging_config = get('logging');
+    $promtail_config_file_path = get('promtail_config_file_path');
     $app_id = get('app_id');
     $release_path = get('release_path');
     $release_version = get('release_version');
