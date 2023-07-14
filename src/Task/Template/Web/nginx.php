@@ -63,7 +63,7 @@ function build_directives(Directive &$root_directive, string $location_basepath,
             } else if ($name == 'error_page') {
                 $root_directive->append_directive(NginxConfUtils::create_error_page_directive($location_basepath, $params));
             } else {
-                $root_directive->append_directive(new SimpleDirective($name . 'bababoey', [$params]));
+                $root_directive->append_directive(new SimpleDirective($name, [$params]));
             }
         }
     }
@@ -126,7 +126,7 @@ d\task('hook:post_release', function () {
         }
         throw $e;
     } finally {
-        
+
     }
 
     d\run('nginx -s reload', no_throw: 10);

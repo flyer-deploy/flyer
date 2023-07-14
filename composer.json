@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test:dep": "DEP_BIN=$(which dep) phpunit tests/FlyerTest.php",
-    "test": "phpunit"
+    "test": "phpunit",
+    "dep": "dep"
   },
   "autoload": {
     "psr-4": {
