@@ -16,7 +16,7 @@ task('deploy:load_config', function () {
     if (file_exists($config_file)) {
         $config = Yaml::parseFile($config_file);
     }
-    
+
     // Set config variable
     set('config', $config);
 

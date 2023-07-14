@@ -4,38 +4,37 @@
 template:
   name: web_nginx
   params:
-    web_nginx:
-      locations:
-        - path: "/"
-          block:
-            - "try_files $uri $uri/ /index.php?$query_string;"
-        - path: "/favicon.ico"
-          block:
-            - "access_log off; log_not_found off;"
-        - path: "/robots.txt.ico"
-          block:
-            - "access_log off; log_not_found off;"
-        - path: "\\.php$"
-          modifier: ~
-          block: |
-            fastcgi_pass ${FLYER_PHP_FPM_8_2_FCGI_URI};
-            fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
-            include fastcgi_params;
-        - path: "/\\.(?!well-known).*"
-          modifier: ~
-          block: |
-            deny all;
-            access_log off;
-            log_not_found off;
-      error_pages:
-        404: /index.php
-      webroot: public
-      directives:
-        index: index.php
-        charset: utf-8
-      headers:
-        x-frame-options: SAMEORIGIN
-        x-content-type-options: nosniff
+    locations:
+      - path: "/"
+        block:
+          - "try_files $uri $uri/ /index.php?$query_string;"
+      - path: "/favicon.ico"
+        block:
+          - "access_log off; log_not_found off;"
+      - path: "/robots.txt.ico"
+        block:
+          - "access_log off; log_not_found off;"
+      - path: "\\.php$"
+        modifier: ~
+        block: |
+          fastcgi_pass ${FLYER_PHP_FPM_8_2_FCGI_URI};
+          fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
+          include fastcgi_params;
+      - path: "/\\.(?!well-known).*"
+        modifier: ~
+        block: |
+          deny all;
+          access_log off;
+          log_not_found off;
+    error_pages:
+      404: /index.php
+    webroot: public
+    directives:
+      index: index.php
+      charset: utf-8
+    headers:
+      x-frame-options: SAMEORIGIN
+      x-content-type-options: nosniff
 ```
 
 ## NGINX config generation
@@ -81,4 +80,4 @@ This way of storing configuration files is needed so we can rollback quickly whe
 
 This template requires these environment variables:
 
-- `FLYER_WEB_NGINX_LOCATION`
+- `FLYER_WEB_NGINX_BASE_PATH`

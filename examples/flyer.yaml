@@ -1,12 +1,46 @@
 template:
-  name: web.litespeed
+  name: web.nginx
   params:
-    webroot: public
-    blocked_files:
-      - .env
-    extra_headers:
-      x-frame-options: DENY
-      x-frame-all: DENY
+    conf_file: deploy/web.nginx
+    webroot: public/
+
+    directives:
+      - error_page:
+          params: 404 /index.php
+          prepend_basepath: true
+      - index: index.php
+      - charset: utf-8
+      - add_header: 'x-frame-options "SAMEORIGIN"'
+      - add_header: 'x-content-type-options "nosniff"'
+      - add_header: "x-php-path $realpath_root/index.php always"
+
+      - location:
+          path: "/favicon.ico"
+          directives:
+            - access_log: off
+            - log_not_found: off
+      - location:
+          path: "/robots.txt"
+          directives:
+            - access_log: off
+            - log_not_found: off
+      - location:
+          path: "\\.php$"
+          modifier: "~"
+          prepend_basepath: false
+          directives:
+            - fastcgi_pass: "${FLYER_PHP_FPM_8_2_FCGI_URI}"
+            - fastcgi_param: "SCRIPT_FILENAME $realpath_root/index.php"
+            - include: "fastcgi_params"
+      - location:
+          path: "/\\.(?!well-known).*"
+          modifier: "~"
+          directives:
+            - deny: all
+            - access_log: off
+            - log_not_found: off
+
+      - try_files: ["/dev/null", "/index.php?$query_string"]
 
 permission:
   writable_paths:

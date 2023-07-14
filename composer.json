@@ -1,9 +1,17 @@
 {
   "require-dev": {
     "phpunit/phpunit": "^10.2",
-    "symfony/yaml": "^6.3"
+    "symfony/yaml": "^6.3",
+    "deployer/deployer": "^7.3"
   },
   "scripts": {
-    "test": "DEP_BIN=$(which dep) phpunit tests/FlyerTest.php"
+    "test:dep": "DEP_BIN=$(which dep) phpunit tests/FlyerTest.php",
+    "test": "phpunit"
+  },
+  "autoload": {
+    "psr-0": {
+      "Flyer": "src/",
+      "Flyer\\Tests": "tests/"
+    }
   }
 }

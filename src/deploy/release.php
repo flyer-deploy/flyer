@@ -2,6 +2,24 @@
 
 namespace Deployer;
 
+function generate_release_version(array $release_list)
+{
+    $current_date = date('Ymd');
+
+    $version = "$current_date.1";
+
+    if (!empty($release_list)) {
+        natsort($release_list);
+        [$_, $date, $sequence] = explode('.', end($release_list));
+        if ($date === $current_date) {
+            $sequence++;
+            $version = "$current_date.$sequence";
+        }
+    }
+
+    return $version;
+}
+
 task('deploy:release', function () {
     $deploy_path = get('deploy_path');
     $current_path = get('current_path');
@@ -18,20 +36,15 @@ task('deploy:release', function () {
     // Get all releases
     set('release_list', array_map('basename', glob($deploy_path . '/release.*')));
 
+    $release_list = get('release_list');
+    $release_version = generate_release_version($release_list);
+    set('release_version', $release_version);
+
     // Generate release name from previous releases
     set('release_name', function () {
-        $release_list = get('release_list');
-        $current_date = date('Ymd');
-        $new_release  = "release.$current_date.1";
+        $release_version = get('release_version');
+        $new_release = "release.$release_version";
 
-        if (!empty($release_list)) {
-            natsort($release_list);
-            [$_, $date, $sequence] = explode('.', end($release_list));
-            if ($date === $current_date) {
-                $sequence++;
-                $new_release = "release.$current_date.$sequence";
-            }
-        }
         return $new_release;
     });
 
