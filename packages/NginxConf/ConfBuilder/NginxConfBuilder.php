@@ -41,7 +41,7 @@ class NginxConfBuilder
                     $str .= $pad . $node->to_string() . PHP_EOL;
                 } else if ($node instanceof BlockDirective) {
                     $stack_length++;
-                    $str .= $pad . $node->directive_opening_to_string() . PHP_EOL;
+                    $str .= $pad . $node->open_block() . PHP_EOL;
                     if (!count($node->get_directives())) {
                         $str .= $pad . '}' . PHP_EOL;
                         $stack_length--;

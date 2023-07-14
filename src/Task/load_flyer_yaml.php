@@ -8,6 +8,7 @@ use function Deployer\set;
 use function Deployer\warning;
 use function Deployer\has;
 use function Deployer\writeln;
+use function Deployer\error;
 
 use function Flyer\Utils\Common\depends;
 use function Flyer\Utils\Common\obtain;
@@ -25,12 +26,16 @@ function load_templates()
     }
 
     $schema = get('template_config')['name'];
-    $path = __DIR__ . '/../' . str_replace('.', '/', $schema) . '.php';
+
+    $template_files = [
+        'web.nginx' => __DIR__ . '/Template/Web/nginx.php',
+        'web.litespeed' => __DIR__ . '/Template/Web/litespeed.php',
+    ];
+    $path = $template_files[$schema] ?? null;
 
     // Throw warning if template name error
-    if (!file_exists($path)) {
-        writeln("Template name $schema is invalid.");
-        return;
+    if (is_null($path) || !file_exists($path)) {
+        throw error("Template name $schema is invalid.");
     }
 
     // Load template
@@ -65,7 +70,7 @@ task('deploy:load_flyer_yaml', function () {
     set('shared_dirs', obtain($config, 'shared', 'dirs'));
     set('shared_files', obtain($config, 'shared', 'files'));
     set('writables', obtain($config, 'writables'));
-
+    set('template_config', obtain($config, 'template'));
 
     load_templates();
 });

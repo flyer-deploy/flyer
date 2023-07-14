@@ -15,7 +15,7 @@ class BlockDirective extends Directive
     {
         $str = $this->name;
         if (!empty($this->params)) {
-            $str .= " " . implode_if_array($this->params);
+            $str .= " " . Utils::implode_if_array($this->params);
         }
         $str .= ' {';
         return $str;

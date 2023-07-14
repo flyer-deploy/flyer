@@ -48,9 +48,6 @@ permission:
       recursive: true
       files_default_writable: true
 
-command_hooks:
-  post_symlink: false
-
 remove:
   - composer.json
   - composer.lock
@@ -60,9 +57,8 @@ dependencies:
   - git
   - composer
   - ffmpeg
-
-logging:
-  drivers:
-    - type: promtail
-  files:
-    - file: storage/logs/**/*.log
+# logging:
+#   drivers:
+#     - type: promtail
+#   files:
+#     - file: storage/logs/**/*.log

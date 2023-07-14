@@ -80,7 +80,7 @@ function set_variables()
     // Release
     set('release_name', null);
     set('release_path', null);
-    set('release_list', null);
+    set('release_list', []);
     set('release_version', null);
     set('previous_release_name', null);
     set('with_secure_default_permission', getenv('WITH_SECURE_DEFAULT_PERMISSIONS'));

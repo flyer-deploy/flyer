@@ -2,9 +2,9 @@
 
 namespace Flyer\Utils\Filsystem;
 
-use function Deployer\run;
+use Deployer as d;
 
 function create_symlink(string $link, string $target)
 {
-    run("ln -sfn $target $link");
+    d\run("ln -sfn $target $link");
 }

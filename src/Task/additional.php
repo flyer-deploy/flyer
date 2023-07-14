@@ -23,7 +23,6 @@ task('deploy:additional', function () {
     $additional_files = get('additional');
     $additional_files_dir = get('additional_files_dir');
     if ($additional_files == null) {
-        echo "KONTOLODON";
     }
     $release_path = get('release_path');
 

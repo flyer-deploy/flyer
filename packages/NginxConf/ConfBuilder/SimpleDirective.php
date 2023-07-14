@@ -2,7 +2,6 @@
 
 namespace Flyer\Packages\NginxConf\ConfBuilder;
 
-
 class SimpleDirective extends Directive
 {
     public function __construct(string $name, array $params)
@@ -14,13 +13,18 @@ class SimpleDirective extends Directive
     {
         $str = $this->name;
         if (!empty($this->params)) {
-            $str .= " " . implode_if_array($this->params);
+            $str .= " " . Utils::implode_if_array($this->params);
         }
         return $str . ';';
     }
 
+    public function get_directives()
+    {
+        return [];
+    }
+
     public function append_directive(Directive $directive)
     {
-        throw new NginxConfBuilderException('Cannot append directive to a simple directive. Only block directives are able to do it.');
+        throw new NginxConfBuilderException('Cannot append directive to a simple directive. Append directive is only possible with block directives.');
     }
 }

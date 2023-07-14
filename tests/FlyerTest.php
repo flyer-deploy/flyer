@@ -140,7 +140,6 @@ final class FlyerTest extends TestCase
                 exec($shell, $output, $ret);
                 $out = parse_deployer_output($output);
                 $out->dump(STDERR);
-                // print_r($out->get_logs());
 
                 $expected = $env['expected'];
                 foreach ($expected as $key => $val) {

@@ -30,6 +30,7 @@ abstract class Directive
 
     public function traverse(?Directive $root, array $options = [], callable $cb)
     {
+        // stack-based depth-first traverse
         $opts = array_merge(['max_depth' => -1], $options);
         $stack = [['node' => $root ?? $this, 'depth' => 0]];
         $max_depth = $opts['max_depth'];
