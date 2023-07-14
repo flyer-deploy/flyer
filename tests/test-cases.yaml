@@ -80,7 +80,7 @@
         exception:
           class: Deployer\Exception\Exception
           message: >-
-            ADDITIONAL_FILES_DIR is not specified while flyer.yaml specifies `additional.files`.
+            `additional_files_dir` not specified.
 
 # ----- Dependencies test
 - config:

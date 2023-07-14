@@ -1,6 +1,8 @@
 {
   "require-dev": {
-    "phpunit/phpunit": "^10.2",
+    "phpunit/phpunit": "^10.2"
+  },
+  "require": {
     "symfony/yaml": "^6.3",
     "deployer/deployer": "^7.3"
   },
@@ -9,9 +11,16 @@
     "test": "phpunit"
   },
   "autoload": {
-    "psr-0": {
-      "Flyer": "src/",
-      "Flyer\\Tests": "tests/"
-    }
+    "psr-4": {
+      "Flyer\\": "src/",
+      "Flyer\\Packages\\": "packages/",
+      "Flyer\\Tests\\": "tests/"
+    },
+    "files": [
+      "src/Utils/Common.php",
+      "src/Utils/Filesystem.php",
+      "src/Utils/Path.php",
+      "src/Utils/Substitute.php"
+    ]
   }
 }

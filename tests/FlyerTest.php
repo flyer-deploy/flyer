@@ -114,11 +114,13 @@ final class FlyerTest extends TestCase
         $artifact_dir = system('mktemp -d');
         $artifact = generate_artifact([], true, $artifact_dir);
 
-        foreach ($configs as $conf) {
+        foreach ($configs as $i => $conf) {
             $artifact = generate_artifact($conf['config'], false, $artifact_dir);
 
-            foreach ($conf['env'] as $env) {
+            foreach ($conf['env'] as $j => $env) {
                 stderr(PHP_EOL . "------------------ ## ------------------" . PHP_EOL);
+                stderr("Conf $i\n");
+                stderr("Env $j\n");
 
                 $env_value = $env['value'];
 
@@ -127,7 +129,7 @@ final class FlyerTest extends TestCase
                     'DEPLOY_PATH' => $artifact['deploy'],
                 ]);
                 $exports = generate_env_exports($vars_parsed_env);
-                $shell = "$exports $dep_bin -f ./src/recipes/flyer.php deploy -vvv";
+                $shell = "$exports $dep_bin -f ./src/flyer.php deploy -vvv";
 
                 stderr("Running command: $shell" . PHP_EOL . PHP_EOL);
                 stderr("Config:" . PHP_EOL . PHP_EOL);
