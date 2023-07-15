@@ -30,7 +30,7 @@ function path_join(string...$paths): string
     foreach ($paths as $p) {
         $paths_split = explode('/', $p);
         foreach ($paths_split as $p_segment) {
-            if (empty($p_segment)) {
+            if (empty($p_segment) || $p_segment == '.') {
                 continue;
             }
             $resulting_path .= '/' . trim_slash($p_segment);

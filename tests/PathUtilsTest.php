@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-require __DIR__ . '/../src/common/utils/path.php';
+use function Flyer\Utils\Path\path_join;
 
 final class PathUtilsTest extends TestCase
 {
@@ -13,6 +13,13 @@ final class PathUtilsTest extends TestCase
         // "normal" path
         $paths = ['/some/valid/path/', '/another/normal/path/'];
         $this->assertEquals('/some/valid/path/another/normal/path/', path_join($paths[0], $paths[1]));
+
+        $paths = ['/some/valid/path/.', '/another/normal/path/.'];
+        $this->assertEquals('/some/valid/path/another/normal/path', path_join($paths[0], $paths[1]));
+
+        // some crazy paths
+        $paths = ['/some/////crazy/.//path/.', '/////youshould/be/able/to/handle/this///////////normal/path/.'];
+        $this->assertEquals('/some/crazy/path/youshould/be/able/to/handle/this/normal/path', path_join($paths[0], $paths[1]));
     }
 
 }
