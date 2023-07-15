@@ -4,7 +4,7 @@ namespace Flyer\Packages\NginxConf\ConfBuilder;
 
 class SimpleDirective extends Directive
 {
-    public function __construct(string $name, array $params)
+    public function __construct(string $name, mixed $params)
     {
         parent::__construct($name, $params, []);
     }

@@ -13,17 +13,27 @@ template:
       - add_header: 'x-frame-options "SAMEORIGIN"'
       - add_header: 'x-content-type-options "nosniff"'
       - add_header: "x-php-path $realpath_root/index.php always"
+      - add_header: "x-uri $uri always"
+      - add_header: "x-request-uri $request_uri always"
+
+      - try_files: "$uri /index.php?$query_string"
+
+      # - location:
+      #     path: "."
+      #     directives:
+      #       - alias: ./
+      #       - try_files: "$uri =404"
 
       - location:
           path: "/favicon.ico"
           directives:
             - access_log: off
-            - log_not_found: off
+
       - location:
           path: "/robots.txt"
           directives:
             - access_log: off
-            - log_not_found: off
+
       - location:
           path: "\\.php$"
           modifier: "~"
@@ -32,6 +42,7 @@ template:
             - fastcgi_pass: "${FLYER_PHP_FPM_8_2_FCGI_URI}"
             - fastcgi_param: "SCRIPT_FILENAME $realpath_root/index.php"
             - include: "fastcgi_params"
+
       - location:
           path: "/\\.(?!well-known).*"
           modifier: "~"
@@ -39,8 +50,6 @@ template:
             - deny: all
             - access_log: off
             - log_not_found: off
-
-      - try_files: ["/dev/null", "/index.php?$query_string"]
 
 permission:
   writable_paths:

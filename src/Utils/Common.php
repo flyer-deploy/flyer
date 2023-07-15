@@ -7,6 +7,7 @@ use function Deployer\run;
 use function Deployer\get;
 use function Deployer\error;
 
+
 function mandatory($value, $key)
 {
     if (empty($value)) {

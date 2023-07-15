@@ -24,14 +24,14 @@ class NginxConfBuilder
             $directive->traverse(null, [], function (?Directive $node, int $depth) use (&$str, &$prev_directive, &$stack_length, &$last_depth) {
                 $pad = str_repeat("\t", $depth);
 
+                // when we exit a block, the current \`depth\` value will be lower than the previous depth
+                // we close the blocks (put '}') as many as the difference of current depth and previous depth
                 $depth_diff = $depth < $last_depth ? abs($depth - $last_depth) : 0;
                 if ($last_depth != -1 && $depth_diff > 0) {
                     while ($depth_diff--) {
                         $stack_length--;
                         $str .= $pad . '}';
-                        if ($depth_diff > 0) {
-                            $str .= PHP_EOL;
-                        }
+                        $str .= PHP_EOL;
                     }
                 }
 
@@ -43,6 +43,7 @@ class NginxConfBuilder
                     $stack_length++;
                     $str .= $pad . $node->open_block() . PHP_EOL;
                     if (!count($node->get_directives())) {
+                        // this block does not have directives
                         $str .= $pad . '}' . PHP_EOL;
                         $stack_length--;
                     }
@@ -51,6 +52,7 @@ class NginxConfBuilder
                 return true;
             });
 
+            // close the remaining blocks
             while ($stack_length > 0) {
                 $pad = str_repeat("\t", $stack_length - 1);
                 $str .= $pad . '}';

@@ -9,10 +9,14 @@ abstract class Directive
     protected array $directives = [];
 
     public readonly string $name;
-    public readonly mixed $params;
+    public readonly array $params;
 
     public function __construct(string $name, mixed $params, array $directives = [])
     {
+        if (is_string($params)) {
+            $params = explode(' ', $params);
+        }
+
         $this->name = $name;
         $this->params = $params;
         $this->directives = $directives;

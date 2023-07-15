@@ -4,6 +4,17 @@ namespace Flyer\Packages\NginxConf\ConfBuilder;
 
 use function Flyer\Utils\Path\path_join;
 
+function is_valid_path($url)
+{
+    $components = parse_url($url);
+
+    if (!isset($components['path']) || !empty($components['scheme']) || !empty($components['host'])) {
+        return false;
+    }
+
+    return true;
+}
+
 class Utils
 {
     public static function create_try_files_directive(string $location_basepath, mixed $try_files)
@@ -12,21 +23,33 @@ class Utils
             $try_files = explode(' ', $try_files);
         }
 
+        $last_args = [];
+
         $last = end($try_files);
-        $path = parse_url($last);
-        $path = path_join($location_basepath, $path['path']) . '?' . $path['query'];
-        $try_files_to_append = [];
+        // we need to check that the string starts with '/'. if not, parse_url actually claims something like "=404" is a valid url. (it's a valid try_files value that's not a url)
+        // it might be valid (I haven't read the URL specificiation), but it does not suit our case here
+        if (str_starts_with($last, '/') && is_valid_path($last)) {
+            $path = parse_url($last);
+            $path = path_join($location_basepath, $path['path']);
+            if (isset($path['query'])) {
+                $path .= '?' . $path['query'];
+            }
+            $last_args[] = $path;
+        } else {
+            $last_args[] = $last;
+        }
+
         if (count($try_files) == 3) {
-            $try_files_to_append = array_merge(
+            $try_files_params = array_merge(
                 array_slice($try_files, 0, count($try_files) - 2),
-                [$path]
+                $last_args
             );
         } else if (count($try_files) == 2) {
-            $try_files_to_append = [$try_files[0], $path];
+            $try_files_params = array_merge([$try_files[0]], $last_args);
         } else {
             throw new \InvalidArgumentException('Invalid argument count of directive \`try_files\`');
         }
-        return new SimpleDirective('try_files', $try_files_to_append);
+        return new SimpleDirective('try_files', $try_files_params);
     }
 
     public static function create_error_page_directive(string $location_basepath, mixed $params)
