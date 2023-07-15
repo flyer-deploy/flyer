@@ -21,7 +21,8 @@
       "src/Utils/Common.php",
       "src/Utils/Filesystem.php",
       "src/Utils/Path.php",
-      "src/Utils/Substitute.php"
+      "src/Utils/Substitute.php",
+      "src/Utils/ReleaseCleanup.php"
     ]
   }
 }
