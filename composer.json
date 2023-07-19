@@ -4,7 +4,8 @@
   },
   "require": {
     "symfony/yaml": "^6.3",
-    "deployer/deployer": "^7.3"
+    "deployer/deployer": "^7.3",
+    "illuminate/validation": "^10.15"
   },
   "scripts": {
     "test:dep": "DEP_BIN=$(which dep) phpunit tests/FlyerTest.php",

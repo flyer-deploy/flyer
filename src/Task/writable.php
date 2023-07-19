@@ -2,6 +2,7 @@
 
 namespace Flyer\Task;
 
+use Flyer\Config;
 use function Flyer\Utils\Common\depends;
 use function Flyer\Utils\Common\obtain;
 
@@ -13,7 +14,7 @@ use function Deployer\set;
 use function Deployer\has;
 
 task('deploy:writable', function () {
-    if (get('writables') == null) {
+    if (get('writable_paths') == null) {
         writeln("Writable config not found. Skipping.");
         return;
     }
@@ -27,20 +28,19 @@ task('deploy:writable', function () {
         set('writable_mode', 'by_group');
     }
 
-
     $release_path = get('release_path');
-    $writables = get('writable');
+
+    /** @var Config\WritablePath[]  */
+    $writable_paths = get('writable_paths');
+
     $mode = get('writable_mode');
 
-
     // Set writables
-    foreach ($writables as $writable) {
-        $path = $release_path . '/' . $writable['path'];
+    foreach ($writable_paths as $writable) {
+        $path = $release_path . '/' . $writable->path;
 
         $maxdepth = '';
-        if (isset($writable['recursive'])) {
-            $maxdepth = $writable['recursive'] ? '' : '-maxdepth 1';
-        }
+        $maxdepth = $writable->recursive ? '' : '-maxdepth 1';
 
         $who = ($mode == 'by_user') ? 'u' : (($mode == 'by_group') ? 'g' : '');
 
@@ -59,8 +59,7 @@ task('deploy:writable', function () {
             run("find -L $path $maxdepth -type d -exec chown $chown_identifier {} \;");
         }
 
-        $files_default_writable = isset($writable['files_default_writable']) ? $writable['files_default_writable'] : false;
-        if ($files_default_writable) {
+        if ($writable->files_default_writable === true) {
             // is this considered hack?
             run("find -L $path $maxdepth -type d -exec setfacl -d -m $who::rwX {} \;");
         }

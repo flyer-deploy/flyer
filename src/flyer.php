@@ -33,6 +33,7 @@ localhost();
 
 
 task('hook:post_release', function () {
+    $config = get('flyer_config');
     $cmd = obtain(get('flyer_config'), 'command_hooks', 'post_release');
     if ($cmd != null) {
         run($cmd);

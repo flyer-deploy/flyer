@@ -27,11 +27,7 @@ function depends(array $var_list)
     foreach ($var_list as $var) {
         $res = get($var);
 
-        if ($res === null) {
-            throw error("`$var` not specified.");
-        }
-
-        if ($res === false) {
+        if ($res === null || $res === false) {
             throw error("`$var` not specified.");
         }
     }
@@ -45,7 +41,7 @@ function depends(array $var_list)
  * @return mixed
  * @return null
  */
-function obtain(array $array, ...$keys)
+function obtain(mixed $array, ...$keys)
 {
     $key = array_shift($keys);
 

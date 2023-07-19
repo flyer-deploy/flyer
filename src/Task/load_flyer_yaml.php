@@ -1,46 +1,63 @@
 <?php
 
-namespace Flyer\Task;
+namespace Deployer;
 
-use function Deployer\task;
-use function Deployer\get;
-use function Deployer\set;
-use function Deployer\warning;
-use function Deployer\has;
-use function Deployer\writeln;
-use function Deployer\error;
-
+use Flyer\Config\Exception\ConfigParseException;
+use Flyer\Config;
 use function Flyer\Utils\Common\depends;
-use function Flyer\Utils\Common\obtain;
 
-use Symfony\Component\Yaml\Yaml;
+use Illuminate\Support\Arr;
+use Symfony\Component\Yaml;
 
-function load_templates()
+function run_template_init(array $template_definition)
 {
-    if (!has('template_config')) {
-        return;
+    $init = Arr::get($template_definition, 'init');
+    if (is_callable($init)) {
+        $init();
     }
+}
 
-    if (!isset(get('template_config')['name'])) {
-        return;
+function register_hooks_from_template(array $template_definition)
+{
+    $hook_keys = [
+        'hook:pre_release',
+        'hook:post_release',
+        'hook:pre_symlink',
+        'hook:post_symlink',
+    ];
+    foreach ($hook_keys as $key) {
+        $hook = Arr::get($template_definition, $key);
+        if (is_callable($hook)) {
+            task($key, $hook);
+        } else if (is_array($hook)) {
+            $desc = Arr::get($hook, 'desc');
+            $fn = Arr::get($hook, 'fn');
+            $task = null;
+            if (is_callable($fn)) {
+                $task = task($key, $fn);
+            }
+            if (is_string(($desc))) {
+                $task->desc($desc);
+            }
+        }
     }
+}
 
-    $schema = get('template_config')['name'];
-
+function load_templates(string $template_name)
+{
     $template_files = [
         'web.nginx' => __DIR__ . '/Template/Web/nginx.php',
         'web.litespeed' => __DIR__ . '/Template/Web/litespeed.php',
     ];
-    $path = $template_files[$schema] ?? null;
+    $path = $template_files[$template_name] ?? null;
 
     // Throw warning if template name error
     if (is_null($path) || !file_exists($path)) {
-        throw error("Template name $schema is invalid.");
+        throw error("Template name $template_name is invalid.");
     }
 
     // Load template
-    require $path;
-    writeln("Template $schema loaded.");
+    return require $path;
 }
 
 task('deploy:load_flyer_yaml', function () {
@@ -50,27 +67,32 @@ task('deploy:load_flyer_yaml', function () {
 
     // Load configuration file
     $config_file = get('release_path') . '/flyer.yaml';
-    $config = [];
+    $config = null;
 
     if (file_exists($config_file)) {
-        $config = Yaml::parseFile($config_file);
+        try {
+            $yaml = Yaml\Yaml::parseFile($config_file);
+            $config = Config\Loader::load($yaml);
+
+            if (!is_null($config->template->name)) {
+                $template_definition = load_templates($config->template->name);
+                register_hooks_from_template($template_definition);
+            }
+        } catch (Yaml\Exception\ParseException $e) {
+            throw new ConfigParseException("Failed to parse yaml config: {$e->getMessage()}", $e);
+        }
     } else {
         warning("flyer.yaml not found");
     }
 
-    if ($config == null) {
-        $config = [];
-    }
-
     set('flyer_config', $config);
-    set('dependencies', obtain($config, 'dependencies'));
-    set('logging', obtain($config, 'logging'));
-    set('additional', obtain($config, 'additional', 'files'));
-    set('remove', obtain($config, 'remove'));
-    set('shared_dirs', obtain($config, 'shared', 'dirs'));
-    set('shared_files', obtain($config, 'shared', 'files'));
-    set('writables', obtain($config, 'writables'));
-    set('template_config', obtain($config, 'template'));
+    set('dependencies', $config->dependencies);
+    set('logging', $config->logging);
+    set('additional', $config->additional->files);
+    set('remove', $config->remove);
+    set('shared_dirs', $config->shared->dirs);
+    set('shared_files', $config->shared->files);
+    set('writable_paths', $config->permission->writable_paths);
 
-    load_templates();
+    set('template_config', $config->template);
 });

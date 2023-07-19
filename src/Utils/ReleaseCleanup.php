@@ -16,8 +16,7 @@ function cleanup_old_release(array $release_dir_list, string $previous_release_d
             continue;
         }
 
-        // the last component of the release dir path should be the release name right?
-        // ... right?
+        // the last component of the release dir is the release name
         $release_name = basename($release_dir);
 
         if ($async_cleanup == true) {

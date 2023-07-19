@@ -66,8 +66,9 @@ dependencies:
   - git
   - composer
   - ffmpeg
-# logging:
-#   drivers:
-#     - type: promtail
-#   files:
-#     - file: storage/logs/**/*.log
+
+logging:
+  drivers:
+    - type: promtail
+  files:
+    - file: storage/logs/**/*.log

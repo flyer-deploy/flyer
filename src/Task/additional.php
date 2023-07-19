@@ -22,8 +22,6 @@ task('deploy:additional', function () {
 
     $additional_files = get('additional');
     $additional_files_dir = get('additional_files_dir');
-    if ($additional_files == null) {
-    }
     $release_path = get('release_path');
 
     foreach ($additional_files as $file) {
